@@ -1,0 +1,25 @@
+# Build products
+build/
+*.o
+*.d
+*.elf
+*.bin
+
+# Large simulation/debug artifacts
+*.fst
+*.vcd
+emu
+emu-compile/
+
+# Backup archives
+*.tar
+*.tar.gz
+*.zip
+
+# Temporary/editor files
+*~
+*.swp
+.DS_Store
+
+# Sensitive submission plaintext
+my_submission.txt

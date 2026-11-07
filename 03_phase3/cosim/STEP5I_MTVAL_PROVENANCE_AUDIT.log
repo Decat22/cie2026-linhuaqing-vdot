@@ -1,0 +1,897 @@
+===== PHASE3 STEP5I: MTVAL PROVENANCE AUDIT =====
+
+===== 1. LOCK STEP5H FAILED RUN AS EVIDENCE =====
+424d3e79030a1f63ed848b13f6f71c8b8bffeafd1f07bb117b7364c43eb7dac2  /mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/cosim/STEP5H_VDOT_ILLEGAL_E16_DIFFTEST.log
+36cba825a34955fba013168e0ce878b2d639bd1f1e058ddd78b9106ca10b39b5  /mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/cosim/STEP5H_VDOT_ILLEGAL_E16_IDENTITY.txt
+
+STEP5H_KEY_LINES:
+51:[17] exception pc 000000008000014e inst 0294050b cause 0000000000000002 <--
+91:    mcause: 0x0000000000000002      mepc: 0x000000008000014e     mtval: 0x000000000294050b
+147:  mtval different at pc = 0x008000014a, right= 0x000000000294050b, wrong = 0x0000000000000000
+148:Core 0: [31mABORT at pc = 0x80000e18
+152:[0mCOSIM_ILLEGAL_EXIT=1
+
+===== 2. NEMU CUSTOM HELPER =====
+276- *   - VLEN = 128
+277- *   - SEW must be e8
+278- *   - use only source bytes 0..7
+279- *   - signed INT8 x signed INT8
+280- *   - signed INT32 sum
+281- *   - vd[31:0] = result bit pattern
+282- *   - vd[127:32] = 0
+283- *
+284- * The arithmetic term count is fixed at 8 and does not follow vl.
+285- */
+286:def_EHelper(cie2026_vdot_vv) {
+287-  require_vector(true);
+288-
+289-  // NEMU encodes e8 as vsew == 0.
+290-  if (vtype->vsew != 0) {
+291-    longjmp_exception(EX_II);
+292-  }
+293-
+294-  int32_t sum = 0;
+295-
+296-  for (int i = 0; i < 8; i++) {
+297-    int32_t a = (int8_t)vreg_b(id_src->reg, i);
+298-    int32_t b = (int8_t)vreg_b(id_src2->reg, i);
+299-
+300-    sum += a * b;
+301-  }
+302-
+303-  /*
+304-   * Store exactly the frozen RTL architectural layout:
+305-   *
+306-   *   bits 31:0   = signed INT32 bit pattern
+307-   *   bits 127:32 = zero
+308-   */
+309-  vreg_l(id_dest->reg, 0) = (uint64_t)(uint32_t)sum;
+310-  vreg_l(id_dest->reg, 1) = 0;
+311-
+312-  vp_set_dirty();
+313-}
+314-
+315-def_EHelper(vwsmaccu) {
+316-  longjmp_exception(EX_II);
+317-}
+318-
+319-def_EHelper(vwsmacc) {
+320-  longjmp_exception(EX_II);
+321-}
+
+===== 3. NEMU EX_II / MTVAL PLUMBING =====
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-51-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-52-  cpu.satp     = satp->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-53-  cpu.mip      = get_mip();
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-54-  cpu.mie      = mie->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-55-  cpu.mscratch = mscratch->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-56-  cpu.sscratch = sscratch->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-57-  cpu.mideleg  = mideleg->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-58-  cpu.medeleg  = medeleg->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c:59:  cpu.mtval    = mtval->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-60-  cpu.stval    = stval->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-61-  cpu.mtvec    = mtvec->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-62-  cpu.stvec    = stvec->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-63-#ifdef CONFIG_RVV
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-64-  cpu.vstart  = vstart->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-65-  cpu.vxsat   = vxsat->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-66-  cpu.vxrm    = vxrm->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-67-  cpu.vcsr    = vcsr->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-68-  cpu.vl      = vl->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-69-  cpu.vtype   = vtype->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-70-  cpu.vlenb   = vlenb->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-71-#endif // CONFIG_RVV
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-72-#ifdef CONFIG_RVH
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-73-  cpu.mtval2  = mtval2->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-74-  cpu.mtinst  = mtinst->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-75-  cpu.hstatus = hstatus->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-76-  cpu.hideleg = get_hideleg();
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-77-  cpu.hedeleg = hedeleg->val;
+--
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-258-  spec_log_begin = restore_count + AHEAD_LENGTH;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-259-  cpu_exec(AHEAD_LENGTH);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-260-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-261-  lightqs_take_spec_reg_snapshot();
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-262-  // clint_take_spec_snapshot();
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-263-#endif // CONFIG_LIGHTQS
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-264-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-265-#ifdef CONFIG_LIGHTQS
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c:266:void isa_difftest_raise_intr(word_t NO, uint64_t restore_count) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-267-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-268-  uint64_t left_exec = lightqs_restore_reg_snapshot(restore_count);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-269-  pmem_record_restore(reg_ss.inst_cnt);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-270-  // clint_restore_snapshot(restore_count);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-271-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-272-  if (spec_log_begin <= restore_count) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-273-    // must have restored using spec snapshot
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-274-    stable_log_begin = spec_log_begin;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-275-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-276-  cpu_exec(left_exec);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-277-#else
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c:278:void isa_difftest_raise_intr(word_t NO) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-279-#endif // CONFIG_LIGHTQS
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-280-  //ramcmp();
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-281-#ifdef CONFIG_TDATA1_ICOUNT
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-282-  trig_action_t icount_action = check_triggers_icount(cpu.TM);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-283-  trigger_handler(TRIG_TYPE_ICOUNT, icount_action, 0);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-284-#endif // CONFIG_TDATA1_ICOUNT
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-285-  IFDEF(CONFIG_TDATA1_ITRIGGER, trig_action_t itrigger_action = check_triggers_itrigger(cpu.TM, NO));
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-286-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c:287:  cpu.pc = raise_intr(NO, cpu.pc);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-288-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-289-  IFDEF(CONFIG_TDATA1_ITRIGGER, trigger_handler(TRIG_TYPE_ITRIG, itrigger_action, 0));
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-290-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-291-#ifdef CONFIG_LIGHTQS
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-292-  // after processing, take another snapshot
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-293-  // FIXME: update spec_log_begin
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-294-  lightqs_take_reg_snapshot();
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-295-  // clint_take_snapshot();
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-296-  // pmem ops are logged automatically
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-297-  stable_log_begin = restore_count;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-298-  spec_log_begin = restore_count + AHEAD_LENGTH;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-299-  cpu_exec(AHEAD_LENGTH);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-300-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-301-  lightqs_take_spec_reg_snapshot();
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-302-  // clint_take_spec_snapshot();
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-303-#endif // CONFIG_LIGHTQS
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-304-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c-305-
+--
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-17-#ifndef __INTR_H__
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-18-#define __INTR_H__
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-19-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-20-#include <cpu/decode.h>
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-21-#include "csr.h"
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-22-enum {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-23-  EX_IAM, // instruction address misaligned
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-24-  EX_IAF, // instruction address fault
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h:25:  EX_II,  // illegal instruction
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-26-  EX_BP,  // breakpoint
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-27-  EX_LAM, // load address misaligned
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-28-  EX_LAF, // load address fault
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-29-  EX_SAM, // store/amo address misaligned
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-30-  EX_SAF, // store/amo address fault
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-31-  EX_ECU, // ecall from U-mode or VU-mode
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-32-  EX_ECS, // ecall from HS-mode
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-33-  EX_ECVS,// ecall from VS-mode, H-extention
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-34-  EX_ECM, // ecall from M-mode
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-35-  EX_IPF, // instruction page fault
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-36-  EX_LPF, // load page fault
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-37-  EX_RS0, // reserved
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-38-  EX_SPF, // store/amo page fault
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-39-  EX_DT,  // double trap
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-40-  EX_RS1, // reserved
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-41-  EX_SWC, // software check
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-42-  EX_HWE, // hardware error
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-43-  EX_IGPF = 20,// instruction guest-page fault, H-extention
+--
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-69-#define HSI_MASK   (VSI_MASK | MIP_SGEIP)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-70-#define SI_MASK    (MIP_SSIP | MIP_STIP | MIP_SEIP)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-71-#define LCI_MASK   (~0x1FFFULL)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-72-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-73-// now NEMU does not support EX_IAM,
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-74-// so it may ok to use EX_IAM to indicate a successful memory access
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-75-#define MEM_OK 0
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-76-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h:77:word_t raise_intr(word_t NO, vaddr_t epc);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-78-#define return_on_mem_ex() do { if (cpu.mem_exception != MEM_OK) return; } while (0)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-79-word_t gen_gva(word_t NO, bool is_hls, bool is_mem_access_virtual);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-80-bool intr_deleg_S(word_t exceptionNO);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-81-bool intr_deleg_VS(word_t exceptionNO);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-82-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-83-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-84-#ifdef CONFIG_RVH
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-85-#define SELECT_DUT_INTR_TVAL_REG(ex) ((intr_deleg_VS(ex)) ? (word_t)cpu.execution_guide.vstval :(intr_deleg_S(ex)) ? (word_t)cpu.execution_guide.stval : (word_t)cpu.execution_guide.mtval)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-86-#else
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-87-#define SELECT_DUT_INTR_TVAL_REG(ex) ((intr_deleg_S(ex)) ? (word_t)cpu.execution_guide.stval : (word_t)cpu.execution_guide.mtval)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-88-#endif
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-89-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/local-include/intr.h-90-#endif
+--
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-83-  fflags->val = fcsr->fflags.val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-84-  fp_set_dirty();
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-85-#endif // CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-86-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-87-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-88-void isa_fp_csr_check() {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-89-#ifndef CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-90-  if(unlikely(mstatus->fs == 0)){
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c:91:    longjmp_exception(EX_II);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-92-    assert(0);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-93-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-94-  #ifdef CONFIG_RVH
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-95-  if (cpu.v && vsstatus->fs == 0){
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c:96:    longjmp_exception(EX_II);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-97-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-98-  #endif
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-99-#endif // CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-100-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-101-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-102-void isa_fp_rm_check(uint32_t rm) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-103-#ifndef CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-104-  if (rm > 4) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c:105:    longjmp_exception(EX_II);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-106-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-107-#endif // CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-108-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-109-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-110-uint32_t isa_fp_get_frm(void) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-111-#ifndef CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-112-  return fcsr->frm;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-113-#endif // CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-114-  return 0;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/fp.c-115-}
+--
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-67-static inline def_DHelper(CI_simm_lui) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-68-  decode_CI_simm(s, width);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-69-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-70-  // C.LUI is only valid when rd != {x0, x2}, and when the immediate is not
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-71-  // equal to zero. The code points with nzimm=0 are reserved; the remaining
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-72-  // code points with rd=x0 are HINTs; and the remaining code points with rd=x2
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-73-  // correspond to the C.ADDI16SP instruction.
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-74-  if (unlikely(id_src2->imm == 0)) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h:75:    longjmp_exception(EX_II);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-76-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-77-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-78-  // the immediate of LUI is placed at id_src1->imm
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-79-  id_src1->imm = id_src2->imm << 12;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-80-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-81-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-82-// for shift
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-83-static inline def_DHelper(CI_uimm) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-84-  decode_op_rd_rs1_imm6(s, false, 0, 0, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-85-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-86-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-87-static inline def_DHelper(C_LI) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-88-  decode_CI_simm(s, width);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-89-  decode_op_r(s, id_src1, 0, true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-90-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-91-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-92-static inline def_DHelper(C_ADDI16SP) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-93-  decode_op_r(s, id_src1, 2, true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-94-  uint32_t instr = s->isa.instr.val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-95-  sword_t simm = (SEXT(BITS(instr, 12, 12), 1) << 9) | (BITS(instr, 4, 3) << 7) |
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-96-    (BITS(instr, 5, 5) << 6) | (BITS(instr, 2, 2) << 5) | (BITS(instr, 6, 6) << 4);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-97-  // C.ADDI16SP is only valid when nzimm!=0; the code point with nzimm=0 is reserved.
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-98-  if (unlikely(simm == 0)) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h:99:    longjmp_exception(EX_II);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-100-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-101-  decode_op_i(s, id_src2, simm, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-102-  decode_op_r(s, id_dest, 2, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-103-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-104-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-105-// SP-relative load/store
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-106-static inline void decode_C_xxSP(Decode *s, uint32_t imm6, int rotate) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-107-  decode_op_r(s, id_src1, 2, true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-108-  decode_op_C_imm6(s, imm6, false, 0, rotate);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-109-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-110-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-111-static inline void decode_C_LxSP(Decode *s, int rotate, bool is_fp) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-112-  uint32_t imm6 = (BITS(s->isa.instr.val, 12, 12) << 5) | BITS(s->isa.instr.val, 6, 2);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-113-  decode_C_xxSP(s, imm6, rotate);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-114-  uint32_t rd = BITS(s->isa.instr.val, 11, 7);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-115-  // C.LxSP is only valid when rd!=x0; the code points with rd=x0 are reserved.
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-116-  if (unlikely(rd == 0 && !is_fp)) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h:117:    longjmp_exception(EX_II);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-118-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-119-  if (is_fp) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-120-#ifdef CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h:121:    longjmp_exception(EX_II);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-122-#else
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-123-    decode_op_fr(s, id_dest, rd, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-124-#endif // CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-125-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-126-  else decode_op_r(s, id_dest, rd, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-127-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-128-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-129-static inline def_DHelper(C_LWSP) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-130-  decode_C_LxSP(s, 2, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-131-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-132-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-133-static inline def_DHelper(C_LDSP) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-134-  decode_C_LxSP(s, 3, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-135-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-136-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-137-static inline def_DHelper(C_FLDSP) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-138-  decode_C_LxSP(s, 3, true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-139-}
+--
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-141-// ---------- CSS ----------
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-142-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-143-static inline void decode_C_SxSP(Decode *s, int rotate, bool is_fp) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-144-  uint32_t imm6 = BITS(s->isa.instr.val, 12, 7);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-145-  decode_C_xxSP(s, imm6, rotate);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-146-  uint32_t rs2 = BITS(s->isa.instr.val, 6, 2);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-147-  if (is_fp) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-148-#ifdef CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h:149:    longjmp_exception(EX_II);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-150-#else
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-151-    decode_op_fr(s, id_dest, rs2, true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-152-#endif // CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-153-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-154-  else decode_op_r(s, id_dest, rs2, true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-155-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-156-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-157-static inline def_DHelper(C_SWSP) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-158-  decode_C_SxSP(s, 2, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-159-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-160-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-161-static inline def_DHelper(C_SDSP) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-162-  decode_C_SxSP(s, 3, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-163-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-164-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-165-static inline def_DHelper(C_FSDSP) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-166-  decode_C_SxSP(s, 3, true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-167-}
+--
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-184-static inline void decode_C_ldst_common(Decode *s, int rotate, bool is_store, bool is_fp) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-185-  uint32_t instr = s->isa.instr.val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-186-  decode_op_r(s, id_src1, creg2reg(BITS(instr, 9, 7)), true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-187-  uint32_t imm5 = (BITS(instr, 12, 10) << 2) | BITS(instr, 6, 5);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-188-  uint32_t imm = ror_imm(imm5, 5, rotate) << 1;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-189-  decode_op_i(s, id_src2, imm, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-190-  if (is_fp) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-191-#ifdef CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h:192:    longjmp_exception(EX_II);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-193-#else
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-194-    decode_op_fr(s, id_dest, creg2reg(BITS(instr, 4, 2)), is_store);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-195-#endif // CONFIG_FPU_NONE
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-196-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-197-  else decode_op_r(s, id_dest, creg2reg(BITS(instr, 4, 2)), is_store);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-198-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-199-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-200-static inline def_DHelper(C_LW) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-201-  decode_C_ldst_common(s, 1, false, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-202-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-203-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-204-static inline def_DHelper(C_LD) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-205-  decode_C_ldst_common(s, 2, false, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-206-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-207-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-208-static inline def_DHelper(C_FLD) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-209-  decode_C_ldst_common(s, 2, false, true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-210-}
+--
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-283-  decode_op_r(s, id_src1, (is_rs1_zero ? 0 : BITS(s->isa.instr.val, 11, 7)), true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-284-  decode_op_r(s, id_src2, (is_rs2_zero ? 0 : BITS(s->isa.instr.val, 6, 2)), true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-285-  decode_op_r(s, id_dest, (is_rd_zero ? 0 : BITS(s->isa.instr.val, 11, 7)), false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-286-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-287-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-288-static inline def_DHelper(C_JR) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-289-  // C.JR is only valid when rs1!=x0; the code point with rs1=x0 is reserved.
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-290-  if (unlikely(BITS(s->isa.instr.val, 11, 7) == 0)) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h:291:    longjmp_exception(EX_II);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-292-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-293-  decode_op_r(s, id_src1, BITS(s->isa.instr.val, 11, 7), true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-294-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-295-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-296-static inline def_DHelper(C_MOV) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-297-  // we should put the source at src1 to call c_mv()
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-298-  decode_op_r(s, id_src1, BITS(s->isa.instr.val, 6, 2), true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-299-  decode_op_r(s, id_src2, 0, true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-300-  decode_op_r(s, id_dest, BITS(s->isa.instr.val, 11, 7), false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-301-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-302-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-303-static inline def_DHelper(C_ADD) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-304-  decode_C_rs1_rs2_rd(s, false, false, false);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-305-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-306-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-307-static inline def_DHelper(C_JALR) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-308-  decode_op_r(s, id_src1, BITS(s->isa.instr.val, 11, 7), true);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvc/decode.h-309-  decode_op_i(s, id_src2, 0, true);
+--
+
+===== 4. NEMU DIRECT MTVAL WRITES =====
+/home/chenjunxi/xs-env/NEMU/src/cpu/cpu-exec.c:536:  reg_ss.mtval = cpu.mtval;
+/home/chenjunxi/xs-env/NEMU/src/cpu/cpu-exec.c:579:  spec_reg_ss.mtval = cpu.mtval;
+/home/chenjunxi/xs-env/NEMU/src/cpu/cpu-exec.c:631:  cpu.mtval = reg_ss.mtval;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c:59:  cpu.mtval    = mtval->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c:73:  cpu.mtval2  = mtval2->val;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c:118:  mtval->val    = cpu.mtval;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c:132:  mtval2->val  = cpu.mtval2;
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/difftest/ref.c:392:  fprintf(fp, "mtval %lx\n", cpu.mtval);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/decode.c:126:    // If it is the case, we should have mepc = xxxffe and mtval = yyy000.
+
+===== 5. XIANGSHAN VDOT ILLEGAL GENERATION =====
+179-  mgu.io.in.oldVd := outOldVd
+180-  mgu.io.in.mask := outSrcMask
+181-  mgu.io.in.info.ta := outVecCtrl.vta
+182-  mgu.io.in.info.ma := outVecCtrl.vma
+183-  mgu.io.in.info.vl := outVl
+184-  mgu.io.in.info.vlmul := outVecCtrl.vlmul
+185-  mgu.io.in.info.valid := io.out.valid
+186-  mgu.io.in.info.vstart := outVecCtrl.vstart
+187-  mgu.io.in.info.eew := outEew
+188-  mgu.io.in.info.vsew := outVecCtrl.vsew
+189-  mgu.io.in.info.vdIdx := outVecCtrl.vuopIdx
+190-  mgu.io.in.info.narrow := 0.B
+191-  mgu.io.in.info.dstMask := 0.B
+192-  mgu.io.in.isIndexedVls := false.B
+193-
+194-  // CIE2026 vdot.vv bypasses normal element-wise MGU result because
+195-  // it produces one INT32 reduction result rather than an SEW=8 vector.
+196-  private val outIsVDot = VDotType.isVDot(outCtrl.fuOpType)
+197:  private val outVDotIllegal = outVecCtrl.vsew =/= VSew.e8
+198-
+199-  io.out.bits.res.data := Mux(
+200-    outIsVDot,
+201-    vdotResult,
+202-    mgu.io.out.vd
+203-  )
+204-
+205-  io.out.bits.res.vxsat.get := Mux(
+206-    outIsVDot,
+207-    false.B,
+208-    (outVxsat & mgu.io.out.active).orR
+209-  )
+210-
+211-  io.out.bits.ctrl.exceptionVec.get(ExceptionNO.illegalInstr) := Mux(
+212-    outIsVDot,
+213:    outVDotIllegal,
+214-    mgu.io.out.illegal
+215-  )
+216-}
+
+===== 6. XIANGSHAN ILLEGAL / TVAL SOURCE SEARCH =====
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-94-  val rs2 = Cat(rs2_h, Mux(isAMOCAS, rs2_l, stds.head))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-95-  val rd = Cat(rd_h, rd_l)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-96-  val stdCnt = RegInit(0.U(log2Ceil(stds.length + 1).W))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-97-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-98-  val exceptionVec = RegInit(0.U.asTypeOf(ExceptionVec()))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-99-  val trigger = RegInit(TriggerAction.None)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala:100:  val atom_override_xtval = RegInit(false.B)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-101-  val have_sent_first_tlb_req = RegInit(false.B)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-102-  // paddr after translation
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-103-  val paddr = Reg(UInt())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-104-  val gpaddr = Reg(UInt())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-105-  val vaddr = rs1
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-106-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-107-  val is_mmio = Reg(Bool())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-108-  val isForVSnonLeafPTE = Reg(Bool())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-109-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-110-  // dcache response data
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-111-  val resp_data = Reg(UInt())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-112-  val resp_data_wire = WireInit(0.U)
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-267-        when (!addrAligned || triggerDebugMode || triggerBreakpoint) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-268-          // NOTE: when addrAligned or trigger fire, do not need to wait tlb actually
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-269-          // check for miss aligned exceptions, tlb exception are checked next cycle for timing
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-270-          // if there are exceptions, no need to execute it
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-271-          state := s_finish
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-272-          out_valid := true.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala:273:          atom_override_xtval := true.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-274-        }.otherwise {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-275-          state := s_pm
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-276-        }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-277-      }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-278-    }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-279-  }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-280-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-281-  val pbmtReg = RegEnable(io.dtlb.resp.bits.pbmt(0), io.dtlb.resp.fire && !io.dtlb.resp.bits.miss)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-282-  when (state === s_pm) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-283-    val pmp = WireInit(io.pmpResp)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-284-    is_mmio := Pbmt.isIO(pbmtReg) || (Pbmt.isPMA(pbmtReg) && pmp.mmio)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-285-
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-289-      exceptionVec(storeAccessFault) || exceptionVec(loadAccessFault)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-290-    val exception_pa_mmio_nc = pmp.mmio || Pbmt.isIO(pbmtReg) || Pbmt.isNC(pbmtReg)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-291-    val exception_pa = pmp.st || pmp.ld || exception_pa_mmio_nc
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-292-    when (exception_va || exception_pa) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-293-      state := s_finish
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-294-      out_valid := true.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala:295:      atom_override_xtval := true.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-296-    }.otherwise {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-297-      // if sbuffer has been flushed, go to query dcache, otherwise wait for sbuffer.
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-298-      state := Mux(sbuffer_empty, s_cache_req, s_wait_flush_sbuffer_resp);
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-299-    }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-300-    // update storeAccessFault bit
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-301-    exceptionVec(loadAccessFault) := exceptionVec(loadAccessFault) ||
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-302-      (pmp.ld || exception_pa_mmio_nc) && isLr
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-303-    exceptionVec(storeAccessFault) := exceptionVec(storeAccessFault) || pmp.st ||
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-304-      (pmp.ld || exception_pa_mmio_nc) && !isLr
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-305-  }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-306-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-307-  when (state === s_wait_flush_sbuffer_resp) {
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-414-    when (io.out.fire) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-415-      resetFSM()
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-416-    }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-417-  }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-418-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-419-  when (io.redirect.valid) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala:420:    atom_override_xtval := false.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-421-  }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-422-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-423-  def resetFSM(): Unit = {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-424-    state := s_invalid
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-425-    out_valid := false.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-426-    data_valid := false.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-427-    stdCnt := 0.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-428-    pdest1Valid := false.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-429-    pdest2Valid := false.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-430-  }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-431-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-432-  /**
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-433-    * IO assignment
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-434-    */
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala:435:  io.exceptionInfo.valid := atom_override_xtval
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-436-  io.exceptionInfo.bits.vaddr := vaddr
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-437-  io.exceptionInfo.bits.gpaddr := gpaddr
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-438-  io.exceptionInfo.bits.isForVSnonLeafPTE := isForVSnonLeafPTE
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-439-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-440-  // Send TLB feedback to store issue queue
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-441-  // we send feedback right after we receives request
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-442-  // also, we always treat amo as tlb hit
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-443-  // since we will continue polling tlb all by ourself
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-444-  io.feedbackSlow.valid       := GatedValidRegNext(GatedValidRegNext(io.in.valid))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-445-  io.feedbackSlow.bits.hit    := true.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-446-  io.feedbackSlow.bits.robIdx  := RegEnable(io.in.bits.uop.robIdx, io.in.valid)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/mem/pipeline/AtomicsUnit.scala-447-  io.feedbackSlow.bits.sqIdx   := RegEnable(io.in.bits.uop.sqIdx, io.in.valid)
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-820-    def isAMOCAS(UopSplitType: UInt): Bool = UopSplitType === AMO_CAS_W || UopSplitType === AMO_CAS_D || UopSplitType === AMO_CAS_Q
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-821-  }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-822-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-823-  object ExceptionNO {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-824-    def instrAddrMisaligned = 0
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-825-    def instrAccessFault    = 1
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala:826:    def illegalInstr        = 2
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-827-    def breakPoint          = 3
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-828-    def loadAddrMisaligned  = 4
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-829-    def loadAccessFault     = 5
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-830-    def storeAddrMisaligned = 6
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-831-    def storeAccessFault    = 7
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-832-    def ecallU              = 8
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-833-    def ecallS              = 9
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-834-    def ecallVS             = 10
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-835-    def ecallM              = 11
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-836-    def instrPageFault      = 12
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-837-    def loadPageFault       = 13
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-838-    // def singleStep          = 14
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-844-    def virtualInstr        = 22
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-845-    def storeGuestPageFault = 23
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-846-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-847-    // Just alias
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-848-    def EX_IAM    = instrAddrMisaligned
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-849-    def EX_IAF    = instrAccessFault
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala:850:    def EX_II     = illegalInstr
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-851-    def EX_BP     = breakPoint
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-852-    def EX_LAM    = loadAddrMisaligned
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-853-    def EX_LAF    = loadAccessFault
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-854-    def EX_SAM    = storeAddrMisaligned
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-855-    def EX_SAF    = storeAccessFault
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-856-    def EX_UCALL  = ecallU
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-857-    def EX_HSCALL = ecallS
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-858-    def EX_VSCALL = ecallVS
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-859-    def EX_MCALL  = ecallM
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-860-    def EX_IPF    = instrPageFault
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-861-    def EX_LPF    = loadPageFault
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-862-    def EX_SPF    = storePageFault
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-885-    def priorities = Seq(
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-886-      doubleTrap,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-887-      breakPoint, // TODO: different BP has different priority
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-888-      instrPageFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-889-      instrGuestPageFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-890-      instrAccessFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala:891:      illegalInstr,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-892-      virtualInstr,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-893-      instrAddrMisaligned,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-894-      ecallM, ecallS, ecallVS, ecallU,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-895-      storeAddrMisaligned,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-896-      loadAddrMisaligned,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-897-      storePageFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-898-      loadPageFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-899-      storeGuestPageFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-900-      loadGuestPageFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-901-      storeAccessFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-902-      loadAccessFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-903-      hardwareError
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-910-    }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-911-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-912-    def all = priorities.distinct.sorted
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-913-    def frontendSet = Seq(
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-914-      instrAddrMisaligned,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-915-      instrAccessFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala:916:      illegalInstr,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-917-      instrPageFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-918-      instrGuestPageFault,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-919-      virtualInstr,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-920-      breakPoint
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-921-    )
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-922-    def partialSelect(vec: Vec[Bool], select: Seq[Int]): Vec[Bool] = {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-923-      val new_vec = Wire(ExceptionVec())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-924-      new_vec.foreach(_ := false.B)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-925-      select.foreach(i => new_vec(i) := vec(i))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-926-      new_vec
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-927-    }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/package.scala-928-    def partialSelect(vec: Vec[Bool], select: Seq[Int], unSelect: Seq[Int]): Vec[Bool] = {
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-360-){
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-361-  def ISABase = "rv64i"
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-362-  def ISAExtensions = Seq(
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-363-    // single letter extensions, in canonical order
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-364-    "i", "m", "a", "f", "d", "c", /* "b", */ "v", "h",
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-365-    // multi-letter extensions, sorted alphanumerically
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala:366:    "sdtrig", "sha", "shcounterenw", "shgatpa", "shlcofideleg", "shtvala", "shvsatpa", "shvstvala",
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-367-    "shvstvecd", "smaia", "smcsrind", "smdbltrp", "smmpm", "smnpm", "smrnmi", "smstateen",
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-368-    "ss1p13", "ssaia", "ssccptr", "sscofpmf", "sscounterenw", "sscsrind", "ssdbltrp", "ssnpm",
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala:369:    "sspm", "ssstateen", "ssstrict", "sstc", "sstvala", "sstvecd", "ssu64xl", "supm", "sv39",
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-370-    "sv48", "svade", "svbare", "svinval", "svnapot", "svpbmt", "za64rs", "zacas", "zawrs", "zba",
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-371-    "zbb", "zbc", "zbkb", "zbkc", "zbkx", "zbs", "zcb", "zcmop", "zfa", "zfh", "zfhmin", "zic64b",
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-372-    "zicbom", "zicbop", "zicboz", "ziccamoa", "ziccif", "zicclsm", "ziccrse", "zicntr", "zicond",
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-373-    "zicsr", "zifencei", "zihintntl", "zihintpause", "zihpm", "zimop", "zkn", "zknd", "zkne", "zknh",
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-374-    "zksed", "zksh", "zkt", "zvbb", "zvfh", "zvfhmin", "zvkt", "zvl128b", "zvl32b", "zvl64b"
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-375-  )
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-376-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-377-  def vlWidth = log2Up(VLEN) + 1
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-378-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-379-  /**
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-380-   * the minimum element length of vector elements
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-381-   */
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-896-  protected def TriggerNum = 4
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-897-  protected def TriggerChainMaxLength = 2
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-898-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-899-  // Parameters for Trace extension
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-900-  def TraceGroupNum          = coreParams.traceParams.TraceGroupNum
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-901-  def CauseWidth             = XLEN
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala:902:  def TvalWidth              = coreParams.traceParams.IaddrWidth
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-903-  def PrivWidth              = coreParams.traceParams.PrivWidth
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-904-  def IaddrWidth             = coreParams.traceParams.IaddrWidth
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-905-  def ItypeWidth             = coreParams.traceParams.ItypeWidth
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-906-  def IretireWidthInPipe     = log2Up(RenameWidth * 2)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-907-  def IretireWidthCompressed = log2Up(RenameWidth * CommitWidth * 2)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-908-  def IlastsizeWidth         = coreParams.traceParams.IlastsizeWidth
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-909-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-910-  def hasMbist               = coreParams.hasMbist
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-911-  def hasSramCtl             = coreParams.hasSramCtl
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-912-  def hasSramTest            = hasMbist || hasSramCtl
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Parameters.scala-913-}
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-942-  // which is a side effect of the first instruction and actually not necessary.
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-943-  io.toIbuffer.bits.backendException := (0 until PredictWidth).map {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-944-    case 0 => f3_backendException
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-945-    case _ => false.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-946-  }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-947-  io.toIbuffer.bits.crossPageIPFFix := f3_crossPage_exception_vec.map(ExceptionType.hasException)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala:948:  io.toIbuffer.bits.illegalInstr    := f3_ill
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-949-  io.toIbuffer.bits.triggered       := f3_triggered
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-950-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-951-  when(f3_lastHalf.valid) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-952-    io.toIbuffer.bits.enqEnable := checkerOutStage1.fixedRange.asUInt & f3_instr_valid.asUInt & f3_lastHalf_mask
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-953-    io.toIbuffer.bits.valid     := f3_lastHalf_mask & f3_instr_valid.asUInt
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-954-  }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-955-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-956-  /** to backend */
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-957-  // f3_gpaddr is valid iff gpf is detected
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-958-  io.toBackend.gpaddrMem_wen := f3_toIbuffer_valid && Mux(
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-959-    f3_req_is_mmio,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-960-    mmio_exception === ExceptionType.gpf,
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1013-    io.toIbuffer.bits.pd(0).isCall := isCall
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1014-    io.toIbuffer.bits.pd(0).isRet  := isRet
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1015-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1016-    io.toIbuffer.bits.exceptionType(0) := mmio_exception
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1017-    // exception can happens in next page only when resend
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1018-    io.toIbuffer.bits.crossPageIPFFix(0) := mmio_has_resend && ExceptionType.hasException(mmio_exception)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala:1019:    io.toIbuffer.bits.illegalInstr(0)    := mmioRVCExpander.io.ill
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1020-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1021-    io.toIbuffer.bits.enqEnable := f3_mmio_range.asUInt
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1022-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1023-    mmioFlushWb.bits.pd(0).valid  := true.B
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1024-    mmioFlushWb.bits.pd(0).isRVC  := mmio_is_RVC
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1025-    mmioFlushWb.bits.pd(0).brType := brType
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1026-    mmioFlushWb.bits.pd(0).isCall := isCall
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1027-    mmioFlushWb.bits.pd(0).isRet  := isRet
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1028-  }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1029-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1030-  mmio_redirect := (f3_req_is_mmio && mmio_state === m_waitCommit && RegNext(fromUncache.fire) && f3_mmio_use_seq_pc)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IFU.scala-1031-
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-69-    pred_taken := fetch.ftqOffset(i).valid
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-70-    ftqPtr     := fetch.ftqPtr
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-71-    ftqOffset  := fetch.ftqOffset(i).bits
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-72-    exceptionType := IBufferExceptionType.cvtFromFetchExcpAndCrossPageAndRVCII(
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-73-      fetch.exceptionType(i),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-74-      fetch.crossPageIPFFix(i),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala:75:      fetch.illegalInstr(i)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-76-    )
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-77-    backendException := fetch.backendException(i)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-78-    triggered        := fetch.triggered(i)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-79-    isLastInFtqEntry := fetch.isLastInFtqEntry(i)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-80-    this
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-81-  }
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-82-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-83-  def toCtrlFlow: CtrlFlow = {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-84-    val cf = Wire(new CtrlFlow)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-85-    cf.instr                             := inst
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-86-    cf.pc                                := pc
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/IBuffer.scala-87-    cf.foldpc                            := foldpc
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-37-  val exception:        Vec[UInt] = Vec(PortNumber, UInt(ExceptionType.width.W))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-38-  val pmp_mmio:         Vec[Bool] = Vec(PortNumber, Bool())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-39-  val itlb_pbmt:        Vec[UInt] = Vec(PortNumber, UInt(Pbmt.width.W))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-40-  val backendException: Bool      = Bool()
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-41-  /* NOTE: GPAddrBits(=50bit) is not enough for gpaddr here, refer to PR#3795
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-42-   * Sv48*4 only allows 50bit gpaddr, when software violates this requirement
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala:43:   * it needs to fill the mtval2 register with the full XLEN(=64bit) gpaddr,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-44-   * PAddrBitsMax(=56bit currently) is required for the frontend datapath due to the itlb ppn length limitation
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-45-   * (cases 56<x<=64 are handled by the backend datapath)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-46-   */
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-47-  val gpaddr:            UInt = UInt(PAddrBitsMax.W)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-48-  val isForVSnonLeafPTE: Bool = Bool()
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-49-}
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-50-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-51-class ICacheMainPipeBundle(implicit p: Parameters) extends ICacheBundle {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-52-  val req:               DecoupledIO[FtqToICacheRequestBundle] = Flipped(DecoupledIO(new FtqToICacheRequestBundle))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-53-  val resp:              Valid[ICacheMainPipeResp]             = ValidIO(new ICacheMainPipeResp)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-54-  val topdownIcacheMiss: Bool                                  = Output(Bool())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/icache/ICacheMainPipe.scala-55-  val topdownItlbMiss:   Bool                                  = Output(Bool())
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-155-  // raise af if meta/data array ecc check failed or l2 cache respond with tilelink corrupt
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-156-  /* FIXME: RISC-V Machine ISA v1.13 (draft) introduced a "hardware error" exception, described as:
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-157-   * > A Hardware Error exception is a synchronous exception triggered when corrupted or
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-158-   * > uncorrectable data is accessed explicitly or implicitly by an instruction. In this context,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-159-   * > "data" encompasses all types of information used within a RISC-V hart. Upon a hardware
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-160-   * > error exception, the xepc register is set to the address of the instruction that attempted to
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala:161:   * > access corrupted data, while the xtval register is set either to 0 or to the virtual address
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-162-   * > of an instruction fetch, load, or store that attempted to access corrupted data. The priority
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-163-   * > of Hardware Error exception is implementation-defined, but any given occurrence is
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-164-   * > generally expected to be recognized at the point in the overall priority order at which the
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-165-   * > hardware error is discovered.
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-166-   * Maybe it's better to raise hardware error instead of access fault when ECC check failed.
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-167-   * But it's draft and XiangShan backend does not implement this exception code yet, so we still raise af here.
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-168-   */
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-169-  def fromECC(enable: Bool, corrupt: Bool): UInt =
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-170-    Mux(enable && corrupt, af, none)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-171-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-172-  def fromTilelink(corrupt: Bool): UInt =
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-173-    Mux(corrupt, af, none)
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-242-  val pd               = Vec(PredictWidth, new PreDecodeInfo)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-243-  val foldpc           = Vec(PredictWidth, UInt(MemPredPCWidth.W))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-244-  val ftqOffset        = Vec(PredictWidth, ValidUndirectioned(UInt(log2Ceil(PredictWidth).W)))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-245-  val backendException = Vec(PredictWidth, Bool())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-246-  val exceptionType    = Vec(PredictWidth, UInt(ExceptionType.width.W))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-247-  val crossPageIPFFix  = Vec(PredictWidth, Bool())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala:248:  val illegalInstr     = Vec(PredictWidth, Bool())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-249-  val triggered        = Vec(PredictWidth, TriggerAction())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-250-  val isLastInFtqEntry = Vec(PredictWidth, Bool())
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-251-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-252-  val pc           = Vec(PredictWidth, UInt(VAddrBits.W))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-253-  val ftqPtr       = new FtqPtr
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-254-  val topdown_info = new FrontendTopDownBundle
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-255-}
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-256-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-257-// class BitWiseUInt(val width: Int, val init: UInt) extends Module {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-258-//   val io = IO(new Bundle {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-259-//     val set
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/frontend/FrontendBundle.scala-260-//   })
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-304-  val robIdx = new RobPtr
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-305-  val ftqIdx = new FtqPtr
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-306-  val ftqOffset = UInt(log2Up(PredictWidth).W)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-307-  val level = RedirectLevel()
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-308-  val interrupt = Bool()
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-309-  val cfiUpdate = new CfiUpdateInfo
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala:310:  val fullTarget = UInt(XLEN.W) // only used for tval storage in backend
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-311-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-312-  val stFtqIdx = new FtqPtr // for load violation predict
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-313-  val stFtqOffset = UInt(log2Up(PredictWidth).W)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-314-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-315-  val debug_runahead_checkpoint_id = UInt(64.W)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-316-  val debugIsCtrl = Bool()
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-317-  val debugIsMemVio = Bool()
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-318-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-319-  def flushItself() = RedirectLevel.flushItself(level)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-320-}
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-321-
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/Bundle.scala-322-object Redirect extends HasCircularQueuePtrHelper {
+--
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeStage.scala-25-import xiangshan.backend.rename.RatReadPort
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeStage.scala-26-import xiangshan.backend.Bundles._
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeStage.scala-27-import xiangshan.backend.fu.vector.Bundles.{VType, Vl}
+
+===== 7. DIFFTEST MTVAL MESSAGE SEMANTICS =====
+
+===== 8. CURRENT NEMU PATCH STATUS =====
+NEMU_HEAD=53bcb5686f8fd05248ae98546b7dc04bdca1bbb0
+NEMU_BRANCH=cie2026-phase3-vdot
+ M src/isa/riscv64/include/isa-all-instr.h
+ M src/isa/riscv64/instr/decode.c
+ M src/isa/riscv64/instr/rvv/vcompute.h
+
+diff --git a/src/isa/riscv64/include/isa-all-instr.h b/src/isa/riscv64/include/isa-all-instr.h
+index ba29c820..6d525139 100644
+--- a/src/isa/riscv64/include/isa-all-instr.h
++++ b/src/isa/riscv64/include/isa-all-instr.h
+@@ -112,7 +112,7 @@
+   f(vasubu) f(vsmul) f(vsrl) f(vsra) \
+   f(vssra) f(vnsrl) f(vnsra) f(vnclipu) \
+   f(vnclip) f(vssrl) f(vwredsumu) f(vwredsum) \
+-  f(vdotu) f(vdot) f(vwsmaccu) f(vwsmacc) \
++  f(vdotu) f(vdot) f(cie2026_vdot_vv) f(vwsmaccu) f(vwsmacc) \
+   f(vwsmaccsu) f(vwsmaccus) f(vredsum) \
+   f(vredand) f(vredor) f(vredxor) f(vredminu) \
+   f(vredmin) f(vredmaxu) f(vredmax) f(vmvsx) \
+diff --git a/src/isa/riscv64/instr/decode.c b/src/isa/riscv64/instr/decode.c
+index b6a7cd84..6a351a9d 100644
+--- a/src/isa/riscv64/instr/decode.c
++++ b/src/isa/riscv64/instr/decode.c
+@@ -89,6 +89,8 @@ def_THelper(main) {
+ #endif // CONFIG_FPU_NONE
+ #ifdef CONFIG_RVV
+   def_INSTR_IDTAB("??????? ????? ????? ??? ????? 10101 ??", OP_V  , OP_V);
++  // CIE2026 custom-0 vdot.vv
++  def_INSTR_IDTAB("0000001 ????? ????? 000 ????? 00010 11", OP_V, cie2026_vdot_vv);
+ #endif // CONFIG_RVV
+   def_INSTR_IDTAB("??????? ????? ????? ??? ????? 11000 ??", B     , branch);
+   def_INSTR_IDTAB("??????? ????? ????? 000 ????? 11001 ??", I     , jalr_dispatch);
+diff --git a/src/isa/riscv64/instr/rvv/vcompute.h b/src/isa/riscv64/instr/rvv/vcompute.h
+index 65fedb75..02ec5740 100644
+--- a/src/isa/riscv64/instr/rvv/vcompute.h
++++ b/src/isa/riscv64/instr/rvv/vcompute.h
+@@ -269,6 +269,49 @@ def_EHelper(vdot) {
+   longjmp_exception(EX_II);
+ }
+ 
++/*
++ * CIE2026 custom-0 vdot.vv reference semantics.
++ *
++ * Frozen XiangShan Phase2 behavior:
++ *   - VLEN = 128
++ *   - SEW must be e8
++ *   - use only source bytes 0..7
++ *   - signed INT8 x signed INT8
++ *   - signed INT32 sum
++ *   - vd[31:0] = result bit pattern
++ *   - vd[127:32] = 0
++ *
++ * The arithmetic term count is fixed at 8 and does not follow vl.
++ */
++def_EHelper(cie2026_vdot_vv) {
++  require_vector(true);
++
++  // NEMU encodes e8 as vsew == 0.
++  if (vtype->vsew != 0) {
++    longjmp_exception(EX_II);
++  }
++
++  int32_t sum = 0;
++
++  for (int i = 0; i < 8; i++) {
++    int32_t a = (int8_t)vreg_b(id_src->reg, i);
++    int32_t b = (int8_t)vreg_b(id_src2->reg, i);
++
++    sum += a * b;
++  }
++
++  /*
++   * Store exactly the frozen RTL architectural layout:
++   *
++   *   bits 31:0   = signed INT32 bit pattern
++   *   bits 127:32 = zero
++   */
++  vreg_l(id_dest->reg, 0) = (uint64_t)(uint32_t)sum;
++  vreg_l(id_dest->reg, 1) = 0;
++
++  vp_set_dirty();
++}
++
+ def_EHelper(vwsmaccu) {
+   longjmp_exception(EX_II);
+ }
+
+===== 9. XIANGSHAN STILL FROZEN =====
+XS_HEAD=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+4ceed5042354228a84944ea3adf497e99328070beee925a5693508e93867d0c5  /home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
+
+===== 10. PHASE1/2 FREEZE =====
+P12_TOTAL=46
+P12_OK=46
+P12_FAIL=0
+P12_VERIFY_EXIT=0
+
+===== 11. AUDIT LOG HASH =====

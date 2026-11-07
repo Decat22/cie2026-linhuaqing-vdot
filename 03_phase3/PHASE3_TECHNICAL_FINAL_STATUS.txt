@@ -1,0 +1,105 @@
+CIE2026 Phase3 Technical Final Status
+
+Phase3.1 - NEMU and RTL co-simulation
+------------------------------------
+Status=PASS
+
+NEMU_final_commit:
+55c09a3669d52ae6f6a809bab6e594939b82e512
+
+Final_NEMU_reference_SO_SHA256:
+2fc9bce995eb8b89dded03d40bb0a49a9b2769c64e0f19428b23440b5b851fe2
+
+Custom_vdot_vv_legal_cosim:
+PASS
+
+Official success classes:
+positive=36
+negative=-36
+max_positive=131072
+max_negative=-130048
+mixed=127
+upper_half_poison_ignored=127
+
+Illegal_non_e8_cosim:
+PASS
+
+Standard_RVV_regression:
+PASS
+
+
+Phase3.2 - Mathematically equivalent RVV baseline
+-------------------------------------------------
+Status=PASS
+
+Baseline algorithm:
+vsetivli VL=8,e8,mf2
+vle8.v x2
+vwmul.vv
+vsetivli VL=8,e16,m1
+vmv.v.i zero seed
+vwredsum.vs
+vsetivli VL=1,e32,m1
+vse32.v
+
+Custom_VDOT_instruction_used_in_baseline=NO
+
+Baseline_RTL_NEMU_DiffTest:
+PASS
+
+Equivalent results:
+positive=36
+negative=-36
+max_positive=131072
+max_negative=-130048
+mixed=127
+upper_half_poison_ignored=127
+
+
+Phase3.3 - Performance
+----------------------
+Status=PASS
+
+Measurement:
+XiangShan RTL
+rdcycle
+256 statically unrolled operations per sample
+5 samples
+16 warm-up operations per path
+
+Compute-only:
+custom_cycles_per_op=1.050781
+baseline_cycles_per_op=5.011719
+steady_state_throughput_speedup=4.769517x
+
+End-to-end:
+custom_cycles_per_op=6.937500
+baseline_cycles_per_op=9.941406
+speedup=1.432995x
+
+Static instruction-count ratios:
+compute=5.000000x
+end_to_end=1.500000x
+
+Important:
+4.769517x is steady-state compute throughput/cycle speedup.
+It is NOT a single-instruction latency speedup.
+
+Whole-program cycleCnt, Guest cycle spent, and Host time spent
+are NOT used as the hardware speedup metric.
+
+
+Technical experiment status
+---------------------------
+Phase3.1=PASS
+Phase3.2=PASS
+Phase3.3=PASS
+
+PHASE3_TECHNICAL_EXPERIMENTS_COMPLETE=1
+
+No RTL rerun is required.
+No XiangShan rebuild is required.
+No NEMU rebuild is required.
+
+Documentation, video, and final submission packaging remain separate
+post-experiment tasks.

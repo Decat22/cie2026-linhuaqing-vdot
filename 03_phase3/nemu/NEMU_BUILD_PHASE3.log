@@ -1,0 +1,19 @@
+正克隆到 'resource/LibCheckpoint'...
+fatal: 无法访问 'https://github.com/OpenXiangShan/LibCheckpoint.git/'：Failed to connect to github.com port 443 after 21025 ms: Couldn't connect to server
+/bin/sh: 1: cd: can't cd to resource/LibCheckpoint
+正克隆到 'resource/nanopb'...
+fatal: 无法访问 'https://github.com/nanopb/nanopb.git/'：Recv failure: 连接被对方重置
++ CC src/cpu/cpu-exec.c
++ CC src/isa/riscv64/instr/decode.c
++ CC src/engine/interpreter/fp.c
++ CC src/engine/interpreter/init.c
++ CC src/engine/interpreter/hostcall.c
++ CC src/device/io/map.c
++ CC src/device/io/mmio.c
++ CC src/device/io/port-io.c
++ CC src/profiling/profiling_control.c
++ CXX src/memory/store_queue_wrapper.cpp
+SPECIALIZE_TYPE=RISCV SOFTFLOAT_OPTS="-DSOFTFLOAT_ROUND_ODD -DINLINE_LEVEL=5 -DSOFTFLOAT_FAST_DIV32TO16 -DSOFTFLOAT_FAST_DIV64TO32 -fPIC" make -s -C /home/chenjunxi/xs-env/NEMU/resource/softfloat/repo/build/Linux-x86_64-GCC all
+mkdir -p resource/softfloat/build
+ln -sf /home/chenjunxi/xs-env/NEMU/resource/softfloat/repo/build/Linux-x86_64-GCC/softfloat.a resource/softfloat/build/softfloat.a
++ g++ /home/chenjunxi/xs-env/NEMU/build/riscv64-nemu-interpreter-so

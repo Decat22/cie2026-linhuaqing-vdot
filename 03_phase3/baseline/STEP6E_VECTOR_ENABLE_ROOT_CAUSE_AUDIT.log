@@ -1,0 +1,67 @@
+===== PHASE3 STEP6E: VECTOR ENABLE ROOT-CAUSE AUDIT =====
+===== 1. LOCK FAILED STEP6D + BASELINE =====
+STEP6D_SHA256=848ce42abe6aa38f11eb2eac5e56d72a67b8f2b85d7f24b6a151d60d15223e13
+BASELINE_ELF_SHA256=1b6eed5d496aa51fa8b9cce97380847f845cbba8959839432f79c466c30d54f1
+STEP6D_LOCK=PASS
+BASELINE_ELF_LOCK=PASS
+===== 2. FAILED RUN SIGNATURE =====
+===== CIE2026 Phase3 Mathematically Equivalent RVV Baseline =====
+Core 0 dump: [31mHIT CRITICAL ERROR: please check if software cause a double trap. 
+[0mCore 0: [32mHIT GOOD TRAP at pc = 0xe
+[0mSTEP6D_RUN_EXIT=0
+===== 3. BASELINE SOURCE BEFORE FIRST VECTOR INSTRUCTION =====
+30:    vsetivli t0, 8, e8, mf2, ta, ma
+32:    vle8.v      v8, (a0)
+33:    vle8.v      v9, (a1)
+42:    vwmul.vv    v10, v8, v9
+47:    vsetivli t0, 8, e16, m1, ta, ma
+52:     * vwredsum.vs uses a widening INT32 accumulator.
+62:    vwredsum.vs v14, v10, v12
+67:    vsetivli t0, 1, e32, m1, ta, ma
+BASELINE_SOURCE_VS_ENABLE_COUNT=0
+===== 4. BASELINE FUNCTION OBJDUMP =====
+000000008000019c <cie2026_vdot_rvv_baseline>:
+    8000019c:	cc7472d7          	vsetivli	t0,8,e8,mf2,ta,ma
+    800001a0:	02050407          	vle8.v	v8,(a0)
+    800001a4:	02058487          	vle8.v	v9,(a1)
+    800001a8:	ee84a557          	vwmul.vv	v10,v8,v9
+    800001ac:	cc8472d7          	vsetivli	t0,8,e16,m1,ta,ma
+    800001b0:	5e003657          	vmv.v.i	v12,0
+    800001b4:	c6a60757          	vwredsum.vs	v14,v10,v12
+    800001b8:	cd00f2d7          	vsetivli	t0,1,e32,m1,ta,ma
+    800001bc:	02066727          	vse32.v	v14,(a2)
+    800001c0:	8082                	ret
+
+BASELINE_OBJDUMP_VS_ENABLE_COUNT=0
+===== 5. KNOWN-GOOD PHASE1 VADD VECTOR ENABLE =====
+40:    8000007e:	30052073          	csrs	mstatus,a0
+87:    80000130:	30032073          	csrs	mstatus,t1
+88:    80000134:	0d06f2d7          	vsetvli	t0,a3,e32,m1,ta,ma
+89:    80000138:	02056087          	vle32.v	v1,(a0)
+90:    8000013c:	0205e107          	vle32.v	v2,(a1)
+91:    80000140:	021101d7          	vadd.vv	v3,v1,v2
+92:    80000144:	020661a7          	vse32.v	v3,(a2)
+VADD_VS_ENABLE_COUNT=2
+===== 6. KNOWN-GOOD PHASE2 VDOT VECTOR ENABLE =====
+40:    8000007e:	30052073          	csrs	mstatus,a0
+130:    8000019c:	30032073          	csrs	mstatus,t1
+131:    800001a0:	cc0872d7          	vsetivli	t0,16,e8,m1,ta,ma
+132:    800001a4:	02050407          	vle8.v	v8,(a0)
+133:    800001a8:	02058487          	vle8.v	v9,(a1)
+134:    800001ac:	0294050b          	.word	0x0294050b
+135:    800001b0:	cd0272d7          	vsetivli	t0,4,e32,m1,ta,ma
+VDOT_VS_ENABLE_COUNT=2
+===== 7. ROOT-CAUSE GATES =====
+BASELINE_SOURCE_MISSING_VS_ENABLE=PASS
+BASELINE_BINARY_MISSING_VS_ENABLE=PASS
+KNOWN_GOOD_VECTOR_ENABLE_REFERENCE=PASS
+===== 8. PHASE1/2 FREEZE =====
+P12_TOTAL=46
+P12_OK=46
+P12_FAIL=0
+P12_VERIFY_EXIT=0
+===== 9. FINAL AUDIT VERDICT =====
+AUDIT_READY=1
+VECTOR_ENABLE_ROOTCAUSE=1
+STEP6E_MISSING_MSTATUS_VS_CONFIRMED
+AUDIT_SHA256:

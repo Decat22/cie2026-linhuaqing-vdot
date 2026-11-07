@@ -1,0 +1,159 @@
+===== SIGNAL COUNTS =====
+PC         : 57
+INSTR      : 9
+FUOP       : 3050
+VDOT_RESULT: 2
+OUT_RESULT : 48
+SRC0       : 44
+SRC1       : 38
+
+===== TARGET HITS =====
+FOUND FUOP        time=22834    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_5.decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=22834    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_5.io_deq_decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=22834    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.io_out_5_bits_fuOpType = 0x0e0
+FOUND FUOP        time=22834    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decodePipeRenameModule_5.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=22836    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.io_out_4_bits_fuOpType = 0x0e0
+FOUND FUOP        time=22836    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decodePipeRenameModule_4.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=22836    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_2.decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=22836    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_2.io_deq_decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=22838    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_1.decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=22838    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_1.io_deq_decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=22838    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.io_out_1_bits_fuOpType = 0x0e0
+FOUND FUOP        time=22838    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decodePipeRenameModule_1.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23706    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.io_out_3_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23706    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decodePipeRenameModule_3.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23708    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.io_out_0_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23708    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decodePipeRenameModule.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23708    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_0.decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=23708    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_0.io_deq_decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=23758    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.io_out_3_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23758    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decodePipeRenameModule_3.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23758    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_3.io_deq_decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=23758    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_3.decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=23760    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.io_out_4_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23760    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decodePipeRenameModule_4.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23760    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_2.io_deq_decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=23760    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_2.decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=23762    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.io_out_3_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23762    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decodePipeRenameModule_3.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23762    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_1.decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=23762    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_1.io_deq_decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=23764    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_0.io_deq_decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=23764    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.decoders_0.decodedInst_fuOpType = 0x0e0
+FOUND FUOP        time=23764    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decode.io_out_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23764    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decodePipeRenameModule_2.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23766    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.dispatch.io_renameIn_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23766    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rename.io_in_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23766    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rename.io_out_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23766    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.renamePipeDispatch.io_in_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23766    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decodePipeRenameModule_2.io_out_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23766    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.decodePipeRenameModule_2.data_fuOpType = 0x0e0
+FOUND FUOP        time=23766    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.fusionDecoder.io_dec_2_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.io_toIssueBlock_vfUops_0_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.dispatch.io_toIssueQueues_14_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.dispatch.IQSelUop_14_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.io_fromDispatch_uops_0_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.io_enq_0_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.entries.io_enq_0_bits_payload_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.entries.enqEntries_0.io_commonIn_enq_bits_payload_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.dispatch.io_fromRename_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.dispatch.io_enqRob_req_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.dispatch.fromRenameUpdate_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.dispatch.lsqEnqCtrl.io_enq_req_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.renamePipeDispatch.io_out_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23768    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.renamePipeDispatch.dataVec_2_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.enqRob_req_2_bits_r_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.io_enq_req_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.vtypeBuffer.io_req_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.io_mem_lsqEnqIO_req_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.io_toMem_lsqEnqIO_req_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.dispatch.io_toMem_lsqEnqIO_req_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.dispatch.lsqEnqCtrl.io_enqLsq_req_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.dispatch.lsqEnqCtrl.io_enqLsq_req_2_bits_r_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.memBlock.io_ooo_to_mem_enqLsq_req_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.memBlock.inner_lsq.io_enq_req_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.memBlock.inner_lsq.storeQueue.io_enq_req_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.entries.enqEntries_0.io_commonOut_entry_bits_payload_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.entries.enqEntries_0.io_commonOut_transEntry_bits_payload_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.entries.enqEntries_0.entryReg_payload_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.entries.othersEntryEnqVec_2_bits_payload_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.entries.othersEntriesComp_0.io_commonIn_enq_bits_payload_fuOpType = 0x0e0
+FOUND FUOP        time=23770    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.entries.compEnqVec_0_bits_payload_fuOpType = 0x0e0
+FOUND FUOP        time=23772    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.entries.othersEntriesComp_0.io_commonOut_entry_bits_payload_fuOpType = 0x0e0
+FOUND FUOP        time=23772    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.entries.othersEntriesComp_0.entryReg_payload_fuOpType = 0x0e0
+FOUND FUOP        time=23772    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.debug_microOp_debugReg_24_fuOpType = 0x0e0
+FOUND INSTR       time=23778    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.difftest_module_3.io_bits_instr = 0x0294050b
+FOUND PC          time=23778    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.difftest_module_3.io_bits_pc = 0x00000000800001ac
+FOUND PC          time=23786    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.difftest_module_2.io_bits_pc = 0x00000000800001ac
+FOUND INSTR       time=23786    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.difftest_module_2.io_bits_instr = 0x0294050b
+FOUND OUT_RESULT  time=23788    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_intExuBlock.exus_6.Alu.io_out_bits_res_data = 0x00000000000000000000000000020000
+FOUND OUT_RESULT  time=23834    TOP.SimTop.l_soc.core_with_l2.core.memBlock.inner_stdExeUnits_0.Std.io_out_bits_res_data = 0x00000000000000000000000000020000
+FOUND FUOP        time=23836    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.deqBeforeDly_0_bits_common_fuOpType = 0x0e0
+FOUND FUOP        time=23836    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.entries.io_deqEntry_0_bits_payload_fuOpType = 0x0e0
+FOUND FUOP        time=23838    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_dataPath.io_fromVfIQ_0_0_bits_common_fuOpType = 0x0e0
+FOUND FUOP        time=23838    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.io_toDataPathAfterDelay_0_0_bits_common_fuOpType = 0x0e0
+FOUND FUOP        time=23838    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.io_deqDelay_0_bits_common_fuOpType = 0x0e0
+FOUND FUOP        time=23838    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfScheduler.IssueQueueVfmaVialuFixVimacVppuVfaluVfcvtVipuVsetrvfwvf.deqDelay_0_bits_common_fuOpType = 0x0e0
+FOUND INSTR       time=23840    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.difftest_module_1.io_bits_instr = 0x0294050b
+FOUND PC          time=23840    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.difftest_module_1.io_bits_pc = 0x00000000800001ac
+FOUND FUOP        time=23840    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_dataPath.io_toVecExu_0_0_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23840    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_dataPath.s1_toExuData_7_0_fuOpType = 0x0e0
+FOUND FUOP        time=23840    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_og2ForVector.io_fromOg1VfArith_0_0_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23842    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_bypassNetwork.io_fromDataPath_vf_0_0_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23842    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_bypassNetwork.io_toExus_vf_0_0_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23842    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_bypassNetwork2vfExuBlock.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23842    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_og2ForVector.io_toVfArithExu_0_0_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23842    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_og2ForVector.s2_toExuData_0_0_fuOpType = 0x0e0
+FOUND INSTR       time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.difftest_module.io_bits_instr = 0x0294050b
+FOUND PC          time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.difftest_module.io_bits_pc = 0x00000000800001ac
+FOUND SRC1        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vfma.io_in_bits_data_src_1 = 0x80808080808080808080808080808080
+FOUND SRC1        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.VialuFix.io_in_bits_data_src_1 = 0x80808080808080808080808080808080
+FOUND SRC1        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vimac.io_in_bits_data_src_1 = 0x80808080808080808080808080808080
+FOUND SRC1        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vppu.io_in_bits_data_src_1 = 0x80808080808080808080808080808080
+FOUND SRC0        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vfma.io_in_bits_data_src_0 = 0x80808080808080808080808080808080
+FOUND SRC0        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.VialuFix.io_in_bits_data_src_0 = 0x80808080808080808080808080808080
+FOUND SRC0        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vimac.io_in_bits_data_src_0 = 0x80808080808080808080808080808080
+FOUND SRC0        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vppu.io_in_bits_data_src_0 = 0x80808080808080808080808080808080
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_bypassNetwork2vfExuBlock.io_out_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_bypassNetwork2vfExuBlock.data_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.io_in_0_0_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vfma.io_in_bits_ctrl_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.VialuFix.io_in_bits_ctrl_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.VialuFix.typeMod.io_in_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vimac.io_in_bits_ctrl_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vimac.typeMod.io_in_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vppu.io_in_bits_ctrl_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vppu.typeMod.io_in_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.in1ToN.io_in_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.in1ToN.io_out_0_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.in1ToN.io_out_1_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.in1ToN.io_out_2_bits_fuOpType = 0x0e0
+FOUND FUOP        time=23844    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.in1ToN.io_out_3_bits_fuOpType = 0x0e0
+FOUND OUT_RESULT  time=23846    TOP.SimTop.l_soc.core_with_l2.core.memBlock.inner_stdExeUnits_1.Std.io_out_bits_res_data = 0x00000000000000000000000000020000
+FOUND VDOT_RESULT time=23846    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vimac.vdotResult_r = 0x00000000000000000000000000020000
+FOUND FUOP        time=23846    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.inPipe_1_1_fuOpType = 0x0e0
+FOUND FUOP        time=23846    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.VialuFix.io_in_bits_ctrlPipe_1_fuOpType = 0x0e0
+FOUND VDOT_RESULT time=23848    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vimac.vdotResult = 0x00000000000000000000000000020000
+FOUND OUT_RESULT  time=23848    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vimac.io_out_bits_res_data = 0x00000000000000000000000000020000
+FOUND FUOP        time=23848    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.inPipe_1_2_fuOpType = 0x0e0
+FOUND FUOP        time=23848    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vimac.io_in_bits_ctrlPipe_2_fuOpType = 0x0e0
+FOUND FUOP        time=23850    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.inPipe_1_3_fuOpType = 0x0e0
+FOUND FUOP        time=23850    TOP.SimTop.l_soc.core_with_l2.core.backend.inner_vfExuBlock.exus.Vfma.io_in_bits_ctrlPipe_3_fuOpType = 0x0e0
+FOUND OUT_RESULT  time=23924    TOP.SimTop.l_soc.core_with_l2.core.memBlock.inner_stdExeUnits_1.Std.io_out_bits_res_data = 0x00000000000000000000000000020000
+
+===== HIT SUMMARY =====
+PC         : 4
+INSTR      : 4
+FUOP       : 110
+VDOT_RESULT: 2
+OUT_RESULT : 5
+SRC0       : 4
+SRC1       : 4
+
+Expected targets:
+PC     = 0x00000000800001ac
+INSTR  = 0x0294050b
+FUOP   = 0x0e0
+SRC0/1 = 0x80808080808080808080808080808080
+RESULT = 0x00000000000000000000000000020000

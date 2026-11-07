@@ -1,0 +1,25 @@
+emu compiled at Sep  4 2026, 20:19:24
+Using simulated 32768B flash
+Using simulated 8386560MB RAM
+The image is ./ready-to-run/coremark-2-iteration.bin
+The reference model is ./ready-to-run/riscv64-nemu-interpreter-so
+The first instruction of core 0 has commited. Difftest enabled. 
+Running CoreMark for 2 iterations
+2K performance run parameters for coremark.
+CoreMark Size    : 666
+Total time (ms)  : 2508
+Iterations       : 2
+Compiler version : GCC13.2.0
+seedcrc          : 0xe9f5
+[0]crclist       : 0xe714
+[0]crcmatrix     : 0x1fd7
+[0]crcstate      : 0x8e3a
+[0]crcfinal      : 0x72be
+Finished in 2508 ms.
+==================================================
+CoreMark Iterations/Sec 797
+Core 0: [32mHIT GOOD TRAP at pc = 0x80001ca0
+[0m[35mCore-0 instrCnt = 663,689, cycleCnt = 318,120, IPC = 2.086285
+[0m[34mSeed=0 Guest cycle spent: 318,124 (this will be different from cycleCnt if emu loads a snapshot)
+[0m[34mHost time spent: 1,037,139ms
+[0mCOREMARK_EXIT=0

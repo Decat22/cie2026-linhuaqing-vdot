@@ -1,0 +1,14 @@
+CIE2026 Phase3 NEMU baseline
+
+Baseline commit:
+53bcb5686f8fd05248ae98546b7dc04bdca1bbb0
+
+Phase3 branch:
+cie2026-phase3-vdot
+
+Remote:
+origin	https://github.com/OpenXiangShan/NEMU (fetch)
+origin	https://github.com/OpenXiangShan/NEMU (push)
+
+Current HEAD immediately before source patch:
+53bcb5686f8fd05248ae98546b7dc04bdca1bbb0

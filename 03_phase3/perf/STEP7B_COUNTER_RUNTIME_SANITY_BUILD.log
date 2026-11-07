@@ -1,0 +1,11 @@
+# Building cie2026-perf-counter-sanity [riscv64-xs] with AM_HOME {/home/chenjunxi/xs-env/nexus-am}
++ CC main.c
++ AS counter.S
+# Building lib-am [riscv64-xs]
++ AS src/nemu/common/mainargs.S
++ AR -> build/am-riscv64-xs.a
+# Building lib-klib [riscv64-xs]
+# Creating binary image [riscv64-xs]
++ LD -> build/cie2026-perf-counter-sanity-riscv64-xs.elf
++ OBJCOPY -> build/cie2026-perf-counter-sanity-riscv64-xs.bin
+STEP7B_BUILD_EXIT=0

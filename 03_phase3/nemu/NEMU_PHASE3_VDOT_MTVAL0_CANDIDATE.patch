@@ -1,0 +1,84 @@
+diff --git a/src/isa/riscv64/include/isa-all-instr.h b/src/isa/riscv64/include/isa-all-instr.h
+index ba29c820..6d525139 100644
+--- a/src/isa/riscv64/include/isa-all-instr.h
++++ b/src/isa/riscv64/include/isa-all-instr.h
+@@ -112,7 +112,7 @@
+   f(vasubu) f(vsmul) f(vsrl) f(vsra) \
+   f(vssra) f(vnsrl) f(vnsra) f(vnclipu) \
+   f(vnclip) f(vssrl) f(vwredsumu) f(vwredsum) \
+-  f(vdotu) f(vdot) f(vwsmaccu) f(vwsmacc) \
++  f(vdotu) f(vdot) f(cie2026_vdot_vv) f(vwsmaccu) f(vwsmacc) \
+   f(vwsmaccsu) f(vwsmaccus) f(vredsum) \
+   f(vredand) f(vredor) f(vredxor) f(vredminu) \
+   f(vredmin) f(vredmaxu) f(vredmax) f(vmvsx) \
+diff --git a/src/isa/riscv64/instr/decode.c b/src/isa/riscv64/instr/decode.c
+index b6a7cd84..6a351a9d 100644
+--- a/src/isa/riscv64/instr/decode.c
++++ b/src/isa/riscv64/instr/decode.c
+@@ -89,6 +89,8 @@ def_THelper(main) {
+ #endif // CONFIG_FPU_NONE
+ #ifdef CONFIG_RVV
+   def_INSTR_IDTAB("??????? ????? ????? ??? ????? 10101 ??", OP_V  , OP_V);
++  // CIE2026 custom-0 vdot.vv
++  def_INSTR_IDTAB("0000001 ????? ????? 000 ????? 00010 11", OP_V, cie2026_vdot_vv);
+ #endif // CONFIG_RVV
+   def_INSTR_IDTAB("??????? ????? ????? ??? ????? 11000 ??", B     , branch);
+   def_INSTR_IDTAB("??????? ????? ????? 000 ????? 11001 ??", I     , jalr_dispatch);
+diff --git a/src/isa/riscv64/instr/rvv/vcompute.h b/src/isa/riscv64/instr/rvv/vcompute.h
+index 65fedb75..e7a9d945 100644
+--- a/src/isa/riscv64/instr/rvv/vcompute.h
++++ b/src/isa/riscv64/instr/rvv/vcompute.h
+@@ -269,6 +269,53 @@ def_EHelper(vdot) {
+   longjmp_exception(EX_II);
+ }
+ 
++/*
++ * CIE2026 custom-0 vdot.vv reference semantics.
++ *
++ * Frozen XiangShan Phase2 behavior:
++ *   - VLEN = 128
++ *   - SEW must be e8
++ *   - use only source bytes 0..7
++ *   - signed INT8 x signed INT8
++ *   - signed INT32 sum
++ *   - vd[31:0] = result bit pattern
++ *   - vd[127:32] = 0
++ *
++ * The arithmetic term count is fixed at 8 and does not follow vl.
++ */
++def_EHelper(cie2026_vdot_vv) {
++  require_vector(true);
++
++  // NEMU encodes e8 as vsew == 0.
++  if (vtype->vsew != 0) {
++#ifdef CONFIG_TVAL_EX_II
++    // Match frozen XiangShan backend-generated illegal-instruction mtval = 0.
++    cpu.instr = 0;
++#endif
++    longjmp_exception(EX_II);
++  }
++
++  int32_t sum = 0;
++
++  for (int i = 0; i < 8; i++) {
++    int32_t a = (int8_t)vreg_b(id_src->reg, i);
++    int32_t b = (int8_t)vreg_b(id_src2->reg, i);
++
++    sum += a * b;
++  }
++
++  /*
++   * Store exactly the frozen RTL architectural layout:
++   *
++   *   bits 31:0   = signed INT32 bit pattern
++   *   bits 127:32 = zero
++   */
++  vreg_l(id_dest->reg, 0) = (uint64_t)(uint32_t)sum;
++  vreg_l(id_dest->reg, 1) = 0;
++
++  vp_set_dirty();
++}
++
+ def_EHelper(vwsmaccu) {
+   longjmp_exception(EX_II);
+ }

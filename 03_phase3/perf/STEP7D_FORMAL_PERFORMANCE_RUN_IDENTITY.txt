@@ -1,0 +1,35 @@
+CIE2026 Phase3.3 Formal VDOT Performance Run
+
+XiangShan_HEAD=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+NEMU_HEAD=55c09a3669d52ae6f6a809bab6e594939b82e512
+
+EMU=/home/chenjunxi/xs-env/XiangShan/build/emu
+EMU_SHA256=0aa1992a1e03cf07b2c28906f9c2cb5f1bca181174aa4f9caf8f0eaeb2dd1ada
+
+Benchmark_BIN=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/perf/benchmark_workload/cie2026-vdot-perf-riscv64-xs.bin
+Benchmark_BIN_SHA256=1876e1b03d247429086c09deac62d9cd5e387898cf442a1897f26efc3f42d0fe
+
+Benchmark_ELF=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/perf/benchmark_workload/cie2026-vdot-perf-riscv64-xs.elf
+Benchmark_ELF_SHA256=fd8cfd653292c5f1fcaee2c7ce01f96146293fb8fe58ac05ca3e732e8dbdf6f8
+
+Measurement_mode=RTL --no-diff
+
+Reason:
+Functional correctness already established by Step5V and Step6G DiffTest.
+Hardware performance uses DUT rdcycle and must not be forced to match NEMU.
+
+Samples=5
+Operations_per_sample=256
+Warmup_operations_per_path=16
+
+Primary_metric=rdcycle
+Primary_speedup=baseline_cycles/custom_cycles
+
+Exact_static_instruction_counts:
+custom_compute_per_operation=1
+baseline_compute_per_operation=5
+custom_e2e_per_operation=6
+baseline_e2e_per_operation=9
+
+rdinstret_status=supplementary observed CSR counter
+exact_instruction_count_source=Step7C objdump

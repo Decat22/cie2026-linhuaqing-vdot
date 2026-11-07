@@ -1,0 +1,21 @@
+emu compiled at Sep  6 2026, 13:08:07
+Using simulated 32768B flash
+Using simulated 8386560MB RAM
+The image is /home/chenjunxi/cie2026_evidence/phase2_official8/images/vdot_official8_boundary_PASS.bin
+The reference model is /home/chenjunxi/cie2026_phase3_runtime/nemu/riscv64-nemu-interpreter-so
+The first instruction of core 0 has commited. Difftest enabled. 
+===== CIE2026 XiangShan Official VDOT 8-Term Test =====
+VDOT_BOUNDARY_MAX_POS result = [131072, 0, 0, 0], expected = 131072
+VDOT_BOUNDARY_MAX_POS_PASS
+VDOT_BOUNDARY_MAX_NEG result = [-130048, 0, 0, 0], expected = -130048
+VDOT_BOUNDARY_MAX_NEG_PASS
+VDOT_BOUNDARY_MIXED result = [127, 0, 0, 0], expected = 127
+VDOT_BOUNDARY_MIXED_PASS
+VDOT_UPPER_HALF_IGNORED result = [127, 0, 0, 0], expected = 127
+VDOT_UPPER_HALF_IGNORED_PASS
+VDOT_OFFICIAL_8TERM_ALL_PASS
+Core 0: [32mHIT GOOD TRAP at pc = 0x800002be
+[0m[35mCore-0 instrCnt = 17,267, cycleCnt = 66,287, IPC = 0.260488
+[0m[34mSeed=0 Guest cycle spent: 66,291 (this will be different from cycleCnt if emu loads a snapshot)
+[0m[34mHost time spent: 246,967ms
+[0mCOSIM_BOUNDARY_EXIT=0

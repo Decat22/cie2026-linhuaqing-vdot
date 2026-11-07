@@ -1,0 +1,12 @@
+# Building cie2026-rvv-vdot-baseline [riscv64-xs] with AM_HOME {/home/chenjunxi/xs-env/nexus-am}
++ CC main.c
++ AS baseline.S
+# Building lib-am [riscv64-xs]
++ AS src/nemu/common/mainargs.S
++ AR -> build/am-riscv64-xs.a
+# Building lib-klib [riscv64-xs]
+# Creating binary image [riscv64-xs]
++ LD -> build/cie2026-rvv-vdot-baseline-riscv64-xs.elf
+riscv64-linux-gnu-ld: warning: /home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/build/cie2026-rvv-vdot-baseline-riscv64-xs.elf has a LOAD segment with RWX permissions
++ OBJCOPY -> build/cie2026-rvv-vdot-baseline-riscv64-xs.bin
+STEP6C_BUILD_EXIT=0

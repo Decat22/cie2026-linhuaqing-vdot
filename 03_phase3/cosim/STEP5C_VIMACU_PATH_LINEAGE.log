@@ -1,0 +1,532 @@
+===== PHASE3 STEP5C: VIMACU PATH + LINEAGE AUDIT =====
+
+===== 1. CURRENT HEAD =====
+HEAD=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+PARENT=deeecf7ec03e25a49b597ccc56ab8142b9f28a72
+BRANCH=cie2026-vdot8-official
+
+===== 2. ALL VIMACU PATHS IN CURRENT HEAD =====
+src/main/scala/xiangshan/backend/fu/vector/VIMacU.scala
+src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
+
+===== 3. DOES EACH PATH EXIST IN HEAD? =====
+HEAD_ACTIVE_VECTOR_EXISTS=YES
+HEAD_ACTIVE_VECTOR_SHA256:
+57f85e857e3f3c6113f5b698f3f42a56f80fc0b5fbcca93d9322506ec64781cd  -
+HEAD_WRAPPER_EXISTS=YES
+HEAD_WRAPPER_SHA256:
+4ceed5042354228a84944ea3adf497e99328070beee925a5693508e93867d0c5  -
+
+===== 4. DOES EACH PATH EXIST IN PARENT? =====
+PARENT_ACTIVE_VECTOR_EXISTS=YES
+57f85e857e3f3c6113f5b698f3f42a56f80fc0b5fbcca93d9322506ec64781cd  -
+PARENT_WRAPPER_EXISTS=YES
+29c25abe5bed41f9a856fd76164ed62a1c3661f8987a38636c1508319de5fd27  -
+
+===== 5. WHAT DID THE CIE2026 COMMIT REALLY MODIFY? =====
+COMMIT=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+PARENT=deeecf7ec03e25a49b597ccc56ab8142b9f28a72
+SUBJECT=cie2026: correct vdot.vv to official 8-term semantics
+
+M	src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
+
+===== 6. ACTIVE FILE PACKAGE / CLASS / VDOT LINES =====
+ACTIVE=/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/vector/VIMacU.scala
+57f85e857e3f3c6113f5b698f3f42a56f80fc0b5fbcca93d9322506ec64781cd  /home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/vector/VIMacU.scala
+68://class VIMacU(implicit p: Parameters) extends VPUSubModule(p(XSCoreParamsKey).VLEN) {
+
+===== 7. PACKAGED FILE PACKAGE / CLASS / VDOT LINES =====
+PACKAGED=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/02_phase2/rtl/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
+4ceed5042354228a84944ea3adf497e99328070beee925a5693508e93867d0c5  /mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/02_phase2/rtl/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
+1:package xiangshan.backend.fu.wrapper
+46:class VIMacU(cfg: FuConfig)(implicit p: Parameters) extends VecPipedFuncUnit(cfg) {
+69:  // CIE2026 vdot.vv datapath
+85:  private val vdotProducts = (0 until 8).map { i =>
+91:  private val vdotSumL1 = (0 until 4).map { i =>
+92:    vdotProducts(2 * i) +& vdotProducts(2 * i + 1)
+95:  private val vdotSumL2 = (0 until 2).map { i =>
+96:    vdotSumL1(2 * i) +& vdotSumL1(2 * i + 1)
+99:  private val vdotSum = vdotSumL2(0) +& vdotSumL2(1)
+101:  private val vdotSum32 = Wire(SInt(32.W))
+102:  vdotSum32 := vdotSum
+104:  private val vdotComb = Cat(
+106:    vdotSum32.asUInt
+111:  private val vdotResult = SNReg(vdotComb, latency)
+194:  // CIE2026 vdot.vv bypasses normal element-wise MGU result because
+201:    vdotResult,
+
+===== 8. ACTIVE VDOT CONTEXT =====
+
+===== 9. PACKAGED VDOT CONTEXT =====
+44-}
+45-
+46-class VIMacU(cfg: FuConfig)(implicit p: Parameters) extends VecPipedFuncUnit(cfg) {
+47-  XSError(io.in.valid && io.in.bits.ctrl.fuOpType === VimacType.dummy, "VialuF OpType not supported")
+48-
+49-  // params alias
+50-  private val dataWidth = cfg.destDataBits
+51-  private val dataWidthOfDataModule = 64
+52-  private val numVecModule = dataWidth / dataWidthOfDataModule
+53-
+54-  // io alias
+55-  private val opcode  = VimacType.getOpcode(fuOpType)
+56-  private val format  = VimacType.getFormat(fuOpType)
+57-  private val widen   = format === VimacType.FMT.VVW
+58-  private val exchangeVs2Vd = VimacOpcode.overWriteMultiplicand(opcode)
+59-
+60-  // modules
+61-  private val typeMod = Module(new VIMacSrcTypeModule)
+62-  private val vs2Split = Module(new VecDataSplitModule(dataWidth, dataWidthOfDataModule))
+63-  private val vs1Split = Module(new VecDataSplitModule(dataWidth, dataWidthOfDataModule))
+64-  private val oldVdSplit  = Module(new VecDataSplitModule(dataWidth, dataWidthOfDataModule))
+65-  private val vimacs = Seq.fill(numVecModule)(Module(new VIMac64b))
+66-  private val mgu = Module(new Mgu(dataWidth))
+67-
+68-  // ==========================================================
+69:  // CIE2026 vdot.vv datapath
+70-  //
+71-  // Official semantics for VLEN = 128, SEW = 8:
+72-  //   use only the LOW 8 signed INT8 elements from vs1
+73-  //   use only the LOW 8 signed INT8 elements from vs2
+74-  //
+75-  // result = sum(vs1[i] * vs2[i]), i = 0..7
+76-  //
+77-  // Source bytes [127:64] are intentionally ignored.
+78-  // The maximum positive result is 8 * (-128 * -128) = 131072,
+79-  // which requires 19 signed bits. The architectural result is
+80-  // written as signed INT32 in vd[31:0], with vd[127:32] cleared.
+81-  //
+82-  // A balanced reduction tree is used instead of a serial chain.
+83-  // ==========================================================
+84-
+85:  private val vdotProducts = (0 until 8).map { i =>
+86-    val a = vs1(8 * i + 7, 8 * i).asSInt
+87-    val b = vs2(8 * i + 7, 8 * i).asSInt
+88-    a * b
+89-  }
+90-
+91:  private val vdotSumL1 = (0 until 4).map { i =>
+92:    vdotProducts(2 * i) +& vdotProducts(2 * i + 1)
+93-  }
+94-
+95:  private val vdotSumL2 = (0 until 2).map { i =>
+96:    vdotSumL1(2 * i) +& vdotSumL1(2 * i + 1)
+97-  }
+98-
+99:  private val vdotSum = vdotSumL2(0) +& vdotSumL2(1)
+100-
+101:  private val vdotSum32 = Wire(SInt(32.W))
+102:  vdotSum32 := vdotSum
+103-
+104:  private val vdotComb = Cat(
+105-    0.U(96.W),
+106:    vdotSum32.asUInt
+107-  )
+108-
+109-  // VimacCfg has CertainLatency(2).  Keep the custom result aligned
+110-  // with ctrlVec.last / io.out.valid.
+111:  private val vdotResult = SNReg(vdotComb, latency)
+112-
+113-  /**
+114-    * [[typeMod]]'s in connection
+115-    */
+116-  typeMod.io.in.fuOpType := fuOpType
+117-  typeMod.io.in.vsew := vsew
+118-  typeMod.io.in.isReverse := isReverse
+119-  typeMod.io.in.isExt := isExt
+120-  typeMod.io.in.isDstMask := vecCtrl.isDstMask
+121-  typeMod.io.in.isMove := isMove
+122-
+123-  /**
+124-    * In connection of [[vs2Split]], [[vs1Split]] and [[oldVdSplit]]
+125-    */
+126-  vs2Split.io.inVecData := vs2
+127-  vs1Split.io.inVecData := vs1
+128-  oldVdSplit.io.inVecData := oldVd
+129-
+130-  /**
+131-    * [[vimacs]]'s in connection
+132-    */
+133-  // Vec(vs2(31,0), vs2(63,32), vs2(95,64), vs2(127,96)) ==>
+134-  // Vec(
+135-  //   Cat(vs2(95,64),  vs2(31,0)),
+136-  //   Cat(vs2(127,96), vs2(63,32)),
+137-  // )
+138-  private val vs2GroupedVec: Vec[UInt] = VecInit(vs2Split.io.outVec32b.zipWithIndex.groupBy(_._2 % 2).map(x => x._1 -> x._2.map(_._1)).values.map(x => Cat(x.reverse)).toSeq)
+139-  private val vs1GroupedVec: Vec[UInt] = VecInit(vs1Split.io.outVec32b.zipWithIndex.groupBy(_._2 % 2).map(x => x._1 -> x._2.map(_._1)).values.map(x => Cat(x.reverse)).toSeq)
+140-
+141-  private val vs2VecUsed: Vec[UInt] = Mux(widen, vs2GroupedVec, vs2Split.io.outVec64b)
+142-  private val vs1VecUsed: Vec[UInt] = Mux(widen, vs1GroupedVec, vs1Split.io.outVec64b)
+143-  private val oldVdVecUsed: Vec[UInt] = WireInit(oldVdSplit.io.outVec64b)
+144-
+145-  vimacs.zipWithIndex.foreach {
+146-    case (mod, i) =>
+147-      mod.io.fire        := io.in.valid
+148-      mod.io.info.vm     := vm
+149-      mod.io.info.ma     := vma
+150-      mod.io.info.ta     := vta
+151-      mod.io.info.vlmul  := vlmul
+152-      mod.io.info.vl     := srcVConfig.vl
+153-      mod.io.info.vstart := vstart
+154-      mod.io.info.uopIdx := vuopIdx
+155-      mod.io.info.vxrm   := vxrm
+156-      mod.io.srcType(0)  := typeMod.io.out.vs2Type
+157-      mod.io.srcType(1)  := typeMod.io.out.vs1Type
+158-      mod.io.vdType      := typeMod.io.out.vdType
+159-      mod.io.vs1         := vs1VecUsed(i)
+160-      mod.io.vs2         := Mux(!exchangeVs2Vd, vs2VecUsed(i), oldVdVecUsed(i))
+161-      mod.io.oldVd       := Mux(!exchangeVs2Vd, oldVdVecUsed(i), vs2VecUsed(i))
+162-      mod.io.highHalf    := VimacOpcode.highHalf(opcode)
+163-      mod.io.isMacc      := VimacOpcode.isMacc(opcode)
+164-      mod.io.isSub       := VimacOpcode.isSub(opcode)
+165-      mod.io.widen       := widen
+166-      mod.io.isFixP      := VimacOpcode.isFixP(opcode)
+--
+169-  /**
+170-    * [[mgu]]'s in connection
+171-    */
+172-  private val outVd = Cat(vimacs.reverse.map(_.io.vd))
+173-  private val outFormat = VimacType.getFormat(outCtrl.fuOpType)
+174-  private val outWiden = outFormat === VimacType.FMT.VVW
+175-  private val outVxsat = Cat(vimacs.reverse.map(_.io.vxsat))
+176-
+177-  private val outEew = Mux(outWiden, outVecCtrl.vsew + 1.U, outVecCtrl.vsew)
+178-  mgu.io.in.vd := outVd
+179-  mgu.io.in.oldVd := outOldVd
+180-  mgu.io.in.mask := outSrcMask
+181-  mgu.io.in.info.ta := outVecCtrl.vta
+182-  mgu.io.in.info.ma := outVecCtrl.vma
+183-  mgu.io.in.info.vl := outVl
+184-  mgu.io.in.info.vlmul := outVecCtrl.vlmul
+185-  mgu.io.in.info.valid := io.out.valid
+186-  mgu.io.in.info.vstart := outVecCtrl.vstart
+187-  mgu.io.in.info.eew := outEew
+188-  mgu.io.in.info.vsew := outVecCtrl.vsew
+189-  mgu.io.in.info.vdIdx := outVecCtrl.vuopIdx
+190-  mgu.io.in.info.narrow := 0.B
+191-  mgu.io.in.info.dstMask := 0.B
+192-  mgu.io.in.isIndexedVls := false.B
+193-
+194:  // CIE2026 vdot.vv bypasses normal element-wise MGU result because
+195-  // it produces one INT32 reduction result rather than an SEW=8 vector.
+196-  private val outIsVDot = VDotType.isVDot(outCtrl.fuOpType)
+197-  private val outVDotIllegal = outVecCtrl.vsew =/= VSew.e8
+198-
+199-  io.out.bits.res.data := Mux(
+200-    outIsVDot,
+201:    vdotResult,
+202-    mgu.io.out.vd
+203-  )
+204-
+205-  io.out.bits.res.vxsat.get := Mux(
+206-    outIsVDot,
+207-    false.B,
+208-    (outVxsat & mgu.io.out.active).orR
+209-  )
+210-
+211-  io.out.bits.ctrl.exceptionVec.get(ExceptionNO.illegalInstr) := Mux(
+212-    outIsVDot,
+213-    outVDotIllegal,
+214-    mgu.io.out.illegal
+215-  )
+216-}
+
+===== 10. DIRECT SOURCE DIFF =====
+VIMACU_DIFF_EXIT=1
+VIMACU_DIFF_LINES=294
+--- /mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/02_phase2/rtl/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala	2026-09-06 15:17:55.000000000 +0800
++++ /home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/vector/VIMacU.scala	2026-09-04 17:47:02.451109427 +0800
+@@ -1,216 +1,75 @@
+-package xiangshan.backend.fu.wrapper
+-
+-import org.chipsalliance.cde.config.Parameters
+-import chisel3._
+-import chisel3.util._
+-import utility.XSError
+-import xiangshan.backend.fu.FuConfig
+-import xiangshan.backend.fu.vector.Bundles.VSew
+-import xiangshan.backend.fu.vector.utils.VecDataSplitModule
+-import xiangshan.backend.fu.vector.{Mgu, Utils, VecPipedFuncUnit, VecSrcTypeModule}
+-import xiangshan.ExceptionNO
+-import xiangshan.backend.decode.VDotType
+-import yunsuan.VialuFixType
+-import yunsuan.encoding.Opcode.VimacOpcode
+-import yunsuan.encoding.{VdType, Vs1IntType, Vs2IntType}
+-import yunsuan.{OpType, VimacType}
+-import yunsuan.vector.mac.VIMac64b
+-
+-class VIMacSrcTypeModule extends VecSrcTypeModule {
+-
+-  private val opcode  = VimacType.getOpcode(fuOpType)
+-  private val vs2Sign = VimacType.vs2Sign(fuOpType)
+-  private val vs1Sign = VimacType.vs1Sign(fuOpType)
+-  private val vdSign  = VimacType.vdSign(fuOpType)
+-  private val format  = VimacType.getFormat(fuOpType)
+-  private val widen   = format === VimacType.FMT.VVW
+-
+-  private val vs2IntType = Cat(0.U(1.W), vs2Sign)
+-  private val vs1IntType = Cat(0.U(1.W), vs1Sign)
+-  private val vdIntType  = Cat(0.U(1.W),  vdSign)
+-
+-  private val vsewX2 = vsew + 1.U
+-
+-  private val vs2Type = Cat(vs2IntType, vsew)
+-  private val vs1Type = Cat(vs1IntType, vsew)
+-  private val vdType  = Cat( vdIntType, Mux(widen, vsewX2, vsew))
+-
+-  private val widenIllegal = widen && vsewX2 === VSew.e8
+-
+-  io.out.illegal := widenIllegal
+-  io.out.vs2Type := vs2Type
+-  io.out.vs1Type := vs1Type
+-  io.out.vdType  := vdType
+-}
+-
+-class VIMacU(cfg: FuConfig)(implicit p: Parameters) extends VecPipedFuncUnit(cfg) {
+-  XSError(io.in.valid && io.in.bits.ctrl.fuOpType === VimacType.dummy, "VialuF OpType not supported")
+-
+-  // params alias
+-  private val dataWidth = cfg.destDataBits
+-  private val dataWidthOfDataModule = 64
+-  private val numVecModule = dataWidth / dataWidthOfDataModule
+-
+-  // io alias
+-  private val opcode  = VimacType.getOpcode(fuOpType)
+-  private val format  = VimacType.getFormat(fuOpType)
+-  private val widen   = format === VimacType.FMT.VVW
+-  private val exchangeVs2Vd = VimacOpcode.overWriteMultiplicand(opcode)
+-
+-  // modules
+-  private val typeMod = Module(new VIMacSrcTypeModule)
+-  private val vs2Split = Module(new VecDataSplitModule(dataWidth, dataWidthOfDataModule))
+-  private val vs1Split = Module(new VecDataSplitModule(dataWidth, dataWidthOfDataModule))
+-  private val oldVdSplit  = Module(new VecDataSplitModule(dataWidth, dataWidthOfDataModule))
+-  private val vimacs = Seq.fill(numVecModule)(Module(new VIMac64b))
+-  private val mgu = Module(new Mgu(dataWidth))
+-
+-  // ==========================================================
+-  // CIE2026 vdot.vv datapath
+-  //
+-  // Official semantics for VLEN = 128, SEW = 8:
+-  //   use only the LOW 8 signed INT8 elements from vs1
+-  //   use only the LOW 8 signed INT8 elements from vs2
+-  //
+-  // result = sum(vs1[i] * vs2[i]), i = 0..7
+-  //
+-  // Source bytes [127:64] are intentionally ignored.
+-  // The maximum positive result is 8 * (-128 * -128) = 131072,
+-  // which requires 19 signed bits. The architectural result is
+-  // written as signed INT32 in vd[31:0], with vd[127:32] cleared.
+-  //
+-  // A balanced reduction tree is used instead of a serial chain.
+-  // ==========================================================
+-
+-  private val vdotProducts = (0 until 8).map { i =>
+-    val a = vs1(8 * i + 7, 8 * i).asSInt
+-    val b = vs2(8 * i + 7, 8 * i).asSInt
+-    a * b
+-  }
+-
+-  private val vdotSumL1 = (0 until 4).map { i =>
+-    vdotProducts(2 * i) +& vdotProducts(2 * i + 1)
+-  }
+-
+-  private val vdotSumL2 = (0 until 2).map { i =>
+-    vdotSumL1(2 * i) +& vdotSumL1(2 * i + 1)
+-  }
+-
+-  private val vdotSum = vdotSumL2(0) +& vdotSumL2(1)
+-
+-  private val vdotSum32 = Wire(SInt(32.W))
+-  vdotSum32 := vdotSum
+-
+-  private val vdotComb = Cat(
+-    0.U(96.W),
+-    vdotSum32.asUInt
+-  )
+-
+-  // VimacCfg has CertainLatency(2).  Keep the custom result aligned
+-  // with ctrlVec.last / io.out.valid.
+-  private val vdotResult = SNReg(vdotComb, latency)
+-
+-  /**
+-    * [[typeMod]]'s in connection
+-    */
+-  typeMod.io.in.fuOpType := fuOpType
+-  typeMod.io.in.vsew := vsew
+-  typeMod.io.in.isReverse := isReverse
+-  typeMod.io.in.isExt := isExt
+-  typeMod.io.in.isDstMask := vecCtrl.isDstMask
+-  typeMod.io.in.isMove := isMove
+-
+-  /**
+-    * In connection of [[vs2Split]], [[vs1Split]] and [[oldVdSplit]]
+-    */
+-  vs2Split.io.inVecData := vs2
+-  vs1Split.io.inVecData := vs1
+-  oldVdSplit.io.inVecData := oldVd
+-
+-  /**
+-    * [[vimacs]]'s in connection
+-    */
+-  // Vec(vs2(31,0), vs2(63,32), vs2(95,64), vs2(127,96)) ==>
+-  // Vec(
+-  //   Cat(vs2(95,64),  vs2(31,0)),
+-  //   Cat(vs2(127,96), vs2(63,32)),
+-  // )
+-  private val vs2GroupedVec: Vec[UInt] = VecInit(vs2Split.io.outVec32b.zipWithIndex.groupBy(_._2 % 2).map(x => x._1 -> x._2.map(_._1)).values.map(x => Cat(x.reverse)).toSeq)
+-  private val vs1GroupedVec: Vec[UInt] = VecInit(vs1Split.io.outVec32b.zipWithIndex.groupBy(_._2 % 2).map(x => x._1 -> x._2.map(_._1)).values.map(x => Cat(x.reverse)).toSeq)
+-
+-  private val vs2VecUsed: Vec[UInt] = Mux(widen, vs2GroupedVec, vs2Split.io.outVec64b)
+-  private val vs1VecUsed: Vec[UInt] = Mux(widen, vs1GroupedVec, vs1Split.io.outVec64b)
+-  private val oldVdVecUsed: Vec[UInt] = WireInit(oldVdSplit.io.outVec64b)
+-
+-  vimacs.zipWithIndex.foreach {
+-    case (mod, i) =>
+-      mod.io.fire        := io.in.valid
+-      mod.io.info.vm     := vm
+-      mod.io.info.ma     := vma
+-      mod.io.info.ta     := vta
+-      mod.io.info.vlmul  := vlmul
+-      mod.io.info.vl     := srcVConfig.vl
+-      mod.io.info.vstart := vstart
+-      mod.io.info.uopIdx := vuopIdx
+-      mod.io.info.vxrm   := vxrm
+-      mod.io.srcType(0)  := typeMod.io.out.vs2Type
+-      mod.io.srcType(1)  := typeMod.io.out.vs1Type
+-      mod.io.vdType      := typeMod.io.out.vdType
+-      mod.io.vs1         := vs1VecUsed(i)
+-      mod.io.vs2         := Mux(!exchangeVs2Vd, vs2VecUsed(i), oldVdVecUsed(i))
+-      mod.io.oldVd       := Mux(!exchangeVs2Vd, oldVdVecUsed(i), vs2VecUsed(i))
+-      mod.io.highHalf    := VimacOpcode.highHalf(opcode)
+-      mod.io.isMacc      := VimacOpcode.isMacc(opcode)
+-      mod.io.isSub       := VimacOpcode.isSub(opcode)
+-      mod.io.widen       := widen
+-      mod.io.isFixP      := VimacOpcode.isFixP(opcode)
+-  }
+-
+-  /**
+-    * [[mgu]]'s in connection
+-    */
+-  private val outVd = Cat(vimacs.reverse.map(_.io.vd))
+-  private val outFormat = VimacType.getFormat(outCtrl.fuOpType)
+-  private val outWiden = outFormat === VimacType.FMT.VVW
+-  private val outVxsat = Cat(vimacs.reverse.map(_.io.vxsat))
+-
+-  private val outEew = Mux(outWiden, outVecCtrl.vsew + 1.U, outVecCtrl.vsew)
+-  mgu.io.in.vd := outVd
+-  mgu.io.in.oldVd := outOldVd
+-  mgu.io.in.mask := outSrcMask
+-  mgu.io.in.info.ta := outVecCtrl.vta
+-  mgu.io.in.info.ma := outVecCtrl.vma
+-  mgu.io.in.info.vl := outVl
+-  mgu.io.in.info.vlmul := outVecCtrl.vlmul
+-  mgu.io.in.info.valid := io.out.valid
+-  mgu.io.in.info.vstart := outVecCtrl.vstart
+-  mgu.io.in.info.eew := outEew
+-  mgu.io.in.info.vsew := outVecCtrl.vsew
+-  mgu.io.in.info.vdIdx := outVecCtrl.vuopIdx
+-  mgu.io.in.info.narrow := 0.B
+-  mgu.io.in.info.dstMask := 0.B
+-  mgu.io.in.isIndexedVls := false.B
+-
+-  // CIE2026 vdot.vv bypasses normal element-wise MGU result because
+-  // it produces one INT32 reduction result rather than an SEW=8 vector.
+-  private val outIsVDot = VDotType.isVDot(outCtrl.fuOpType)
+-  private val outVDotIllegal = outVecCtrl.vsew =/= VSew.e8
+-
+-  io.out.bits.res.data := Mux(
+-    outIsVDot,
+-    vdotResult,
+-    mgu.io.out.vd
+-  )
+-
+-  io.out.bits.res.vxsat.get := Mux(
+-    outIsVDot,
+-    false.B,
+-    (outVxsat & mgu.io.out.active).orR
+-  )
+-
+-  io.out.bits.ctrl.exceptionVec.get(ExceptionNO.illegalInstr) := Mux(
+-    outIsVDot,
+-    outVDotIllegal,
+-    mgu.io.out.illegal
+-  )
+-}
++///****************************************************************************************
++// * Copyright (c) 2020-2021 Institute of Computing Technology, Chinese Academy of Sciences
++// * Copyright (c) 2020-2021 Peng Cheng Laboratory
++// *
++// * XiangShan is licensed under Mulan PSL v2.
++// * You can use this software according to the terms and conditions of the Mulan PSL v2.
++// * You may obtain a copy of Mulan PSL v2 at:
++// *          http://license.coscl.org.cn/MulanPSL2
++// *
++// * THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
++// * EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
++// * MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
++// *
++// * See the Mulan PSL v2 for more details.
++// ****************************************************************************************
++// */
++//
++//
++//package xiangshan.backend.fu.vector
++//
++//import org.chipsalliance.cde.config.Parameters
++//import chisel3._
++//import utils._
++//import yunsuan.vector.mac.VIMac
++//import yunsuan.VimacType
++//import xiangshan.{XSCoreParamsKey, FuType}
++//
++//
++//
++//class VIMacWrapper(implicit p: Parameters)  extends VPUDataModule {
++//
++//  needReverse := false.B
++//  needClearMask := false.B
++//
++//  // connect VIMac
++//  val vImac = Module(new VIMac)
++//  vImac.io.in.valid := io.in.valid
++//  vImac.io.in.bits.opcode := VimacType.getOpcode(in.uop.ctrl.fuOpType).asTypeOf(vImac.io.in.bits.opcode)
++//  vImac.io.in.bits.info.vm := in.uop.ctrl.vm
++//  vImac.io.in.bits.info.ma := in.uop.ctrl.vconfig.vtype.vma
++//  vImac.io.in.bits.info.ta := in.uop.ctrl.vconfig.vtype.vta
+
+===== 11. WHERE IS VIMACU REFERENCED IN CURRENT SOURCE? =====
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/FuConfig.scala:550:    fuGen = (p: Parameters, cfg: FuConfig) => Module(new VIMacU(cfg)(p).suggestName("Vimac")),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala:46:class VIMacU(cfg: FuConfig)(implicit p: Parameters) extends VecPipedFuncUnit(cfg) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/vector/VIMacU.scala:68://class VIMacU(implicit p: Parameters) extends VPUSubModule(p(XSCoreParamsKey).VLEN) {
+
+===== 12. SHORT GIT HISTORY FOR BOTH PATHS =====
+--- VECTOR PATH HISTORY ---
+83ba63b34 fix merge error
+3ebdf7580 backend: comments vector units temporarily
+adf68ff35 func(UopDivType): support vcompress & some insts of VIMac (#2067)
+--- WRAPPER PATH HISTORY ---
+86d7b4b98 (HEAD -> cie2026-vdot8-official) cie2026: correct vdot.vv to official 8-term semantics
+deeecf7ec (tag: cie2026-vdot-16term-obsolete, cie2026-vdot) cie2026: add initial vdot.vv RTL datapath
+bb2f3f51d perf: use perfUtils in `Utility` (#3190)
+2d12882c4 FuConfig: split dataBits into destDataBits and srcDataBits for distinguish input and output data width
+81cbff077 FU: fix mgu for body elements's agnostic
+e8e02b740 rv64v: add fire sign as enable of RegNext
+904d2184f rv64v: fix vxsat and vd compute for fixed-point instruction
+92c6b7ed4 Mgu: use sew as element width instead of eew for indexed loads/stores
+c33d4a9ed vector: convert mgu's assertion to EX_II
+83ba63b34 fix merge error
+b3e2881cd assert: mgu's vl must <= vlmax
+1a6cfb3df fix: use mask to generate the vxsat
+
+===== 13. SEALED COPY CONFIRMATION =====
+CIE2026_FINAL_SUBMISSION/02_phase2/rtl/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
+CIE2026_FINAL_SUBMISSION/source/xiangshan/VIMacU.scala
+
+===== 14. PHASE1/2 STILL FROZEN =====
+P12_TOTAL=46
+P12_OK=46
+P12_FAIL=0
+P12_VERIFY_EXIT=0
+
+===== 15. STEP5C LOG HASH =====

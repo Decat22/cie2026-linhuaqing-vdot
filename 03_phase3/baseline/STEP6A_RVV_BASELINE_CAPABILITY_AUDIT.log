@@ -1,0 +1,310 @@
+===== PHASE3 STEP6A: RVV BASELINE CAPABILITY AUDIT =====
+
+===== 1. LOCK CURRENT SOURCE COMMITS =====
+XIANGSHAN_BRANCH=cie2026-vdot8-official
+XIANGSHAN_HEAD=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+NEMU_BRANCH=cie2026-phase3-vdot
+NEMU_HEAD=55c09a3669d52ae6f6a809bab6e594939b82e512
+
+XIANGSHAN_STATUS:
+
+NEMU_STATUS:
+
+===== 2. XIANGSHAN VWMUL / VWREDSUM DECODE SUPPORT =====
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/VecDecoder.scala:249:    VWREDSUMU_VS    -> OPIVV(FuType.vipu, VipuType.vwredsumu_vs, T, F, F, UopSplitType.VEC_VWW),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/VecDecoder.scala:250:    VWREDSUM_VS     -> OPIVV(FuType.vipu, VipuType.vwredsum_vs, T, F, F, UopSplitType.VEC_VWW),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/VecDecoder.scala:434:    VWMUL_VV     -> OPMVV(T, FuType.vimac, VimacType.vwmul, F, T, F, UopSplitType.VEC_VVW),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/VecDecoder.scala:435:    VWMULSU_VV   -> OPMVV(T, FuType.vimac, VimacType.vwmulsu, F, T, F, UopSplitType.VEC_VVW),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/VecDecoder.scala:436:    VWMULU_VV    -> OPMVV(T, FuType.vimac, VimacType.vwmulu, F, T, F, UopSplitType.VEC_VVW),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/VecDecoder.scala:484:    VWMUL_VX       -> OPMVX(T, FuType.vimac, VimacType.vwmul, F, T, F, UopSplitType.VEC_VXW),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/VecDecoder.scala:485:    VWMULSU_VX     -> OPMVX(T, FuType.vimac, VimacType.vwmulsu, F, T, F, UopSplitType.VEC_VXW),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/VecDecoder.scala:487:    VWMULU_VX      -> OPMVX(T, FuType.vimac, VimacType.vwmulu, F, T, F, UopSplitType.VEC_VXW),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/VecExceptionGen.scala:87:    VWMUL_VV, VWMUL_VX, VWMULSU_VV, VWMULSU_VX, VWMULU_VV, VWMULU_VX, 
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/VecExceptionGen.scala:141:    VWREDSUM_VS, VWREDSUMU_VS, 
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/wrapper/VIPU.scala:70:    BitPat(VipuType.vwredsumu_vs) -> List(BitPat(VAluOpcode.vredsum), uSew, uSew, uSew2),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/wrapper/VIPU.scala:71:    BitPat(VipuType.vwredsum_vs)  -> List(BitPat(VAluOpcode.vredsum), sSew, sSew, sSew2),
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/wrapper/VIPU.scala:103:  private val needShiftVs1 = (VipuType.vwredsumu_vs === io.in.bits.ctrl.fuOpType || VipuType.vwredsum_vs === io.in.bits.ctrl.fuOpType) && vuopIdx < lmul
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/vector/VIPU.scala:72://    VipuType.vwredsumu_vs -> Cat(VAluOpcode.vredsum, uSew, uSew, uSew2).asUInt,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/vector/VIPU.scala:73://    VipuType.vwredsum_vs -> Cat(VAluOpcode.vredsum, sSew, sSew, sSew2).asUInt,
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/vector/VIPU.scala:122://  val needShiftVs1 = (VipuType.vwredsumu_vs === in.uop.ctrl.fuOpType || VipuType.vwredsum_vs === in.uop.ctrl.fuOpType) &&
+
+===== 3. NEMU VWMUL / VWREDSUM SUPPORT =====
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/vcompute.h:256:def_EHelper(vwredsumu) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/vcompute.h:260:def_EHelper(vwredsum) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/vcompute.h:992:def_EHelper(vwmulu) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/vcompute.h:996:def_EHelper(vwmulsu) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/vcompute.h:1000:def_EHelper(vwmul) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:194:  def_INSTR_TAB("110000 ? ????? ????? ??? ????? ????? ??", vwredsumu);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:195:  def_INSTR_TAB("110001 ? ????? ????? ??? ????? ????? ??", vwredsum);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:255:  def_INSTR_TAB("110000 ? ????? ????? ??? ????? ????? ??", vwredsumu);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:256:  def_INSTR_TAB("110001 ? ????? ????? ??? ????? ????? ??", vwredsum);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:316:  def_INSTR_TAB("110000 ? ????? ????? ??? ????? ????? ??", vwredsumu);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:317:  def_INSTR_TAB("110001 ? ????? ????? ??? ????? ????? ??", vwredsum);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:379:  def_INSTR_TAB("111000 ? ????? ????? ??? ????? ????? ??", vwmulu);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:380:  def_INSTR_TAB("111010 ? ????? ????? ??? ????? ????? ??", vwmulsu);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:381:  def_INSTR_TAB("111011 ? ????? ????? ??? ????? ????? ??", vwmul);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:440:  def_INSTR_TAB("111000 ? ????? ????? ??? ????? ????? ??", vwmulu);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:441:  def_INSTR_TAB("111010 ? ????? ????? ??? ????? ????? ??", vwmulsu);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvv/decode.h:442:  def_INSTR_TAB("111011 ? ????? ????? ??? ????? ????? ??", vwmul);
+
+===== 4. FRACTIONAL LMUL SUPPORT AUDIT =====
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/FPDecoder.scala:135:  io.vpuCtrl.vlmul := Mux(isFP32Instr || isLmulMf4Cvt, VLmul.mf4, VLmul.mf2)
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:80:  val MAX_VLMUL = 8
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:81:  val VECTOR_TMP_REG_LMUL = 32 // 32~46  ->  15
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:149:  val indexedLSRegOffset = Seq.tabulate(MAX_VLMUL)(i => Module(new indexedLSUopTable(i)))
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:155:  val vlmulReg = latchedInst.vpu.vlmul
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:310:          csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:327:          csBundle(1).lsrc(1) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:357:      for (i <- 0 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:373:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:379:      LMUL
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:381:      for (i <- 0 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:383:        csBundle(i + 1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:391:      for (i <- 0 until MAX_VLMUL / 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:403:      for (i <- 0 until MAX_VLMUL / 4) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:423:      for (i <- 0 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:438:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:450:      csBundle(1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:467:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:473:      LMUL
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:475:      for (i <- 0 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:477:        csBundle(i + 1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:485:      for (i <- 0 until MAX_VLMUL / 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:506:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:513:      for (i <- 0 until MAX_VLMUL / 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:515:        csBundle(2 * i + 1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:521:        csBundle(2 * i + 2).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:529:      for (i <- 0 until MAX_VLMUL / 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:550:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:555:      for (i <- 0 until MAX_VLMUL / 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:557:        csBundle(2 * i + 1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:563:        csBundle(2 * i + 2).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:578:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:583:      for (i <- 0 until MAX_VLMUL / 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:585:        csBundle(2 * i + 1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:591:        csBundle(2 * i + 2).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:599:      for (i <- 0 until MAX_VLMUL / 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:621:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:628:      for (i <- 0 until MAX_VLMUL / 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:630:        csBundle(2 * i + 1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:636:        csBundle(2 * i + 2).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:651:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:656:      for (i <- 0 until MAX_VLMUL / 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:658:        csBundle(2 * i + 1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:664:        csBundle(2 * i + 2).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:675:      for (i <- 1 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:691:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:697:      //LMUL
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:699:      csBundle(1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:703:      for (i <- 1 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:705:        csBundle(i + 1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:721:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:725:      //LMUL
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:727:      csBundle(1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:731:      for (i <- 1 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:733:        csBundle(i + 1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:749:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:753:      //LMUL
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:755:      csBundle(1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:759:      for (i <- 1 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:776:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:782:      //LMUL
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:784:      csBundle(1).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:789:      for (i <- 1 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:806:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:810:      //LMUL
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:811:      for (i <- 0 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:817:        csBundle(2 * i + 1).ldest := VECTOR_TMP_REG_LMUL.U + 1.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:819:        if (2 * i + 2 < MAX_VLMUL * 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:821:          csBundle(2 * i + 2).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:823:          csBundle(2 * i + 2).lsrc(2) := VECTOR_TMP_REG_LMUL.U + 1.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:829:      csBundle(numOfUop - 1.U).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:840:      csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:846:      //LMUL
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:847:      for (i <- 0 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:853:        csBundle(2 * i + 1).ldest := VECTOR_TMP_REG_LMUL.U + 1.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:855:        if (2 * i + 2 < MAX_VLMUL * 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:857:          csBundle(2 * i + 2).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:859:          csBundle(2 * i + 2).lsrc(2) := VECTOR_TMP_REG_LMUL.U + 1.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:865:      csBundle(numOfUop - 1.U).lsrc(0) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:869:      when(vlmulReg === "b001".U) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:873:        csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:876:      when(vlmulReg === "b010".U) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:880:        csBundle(0).ldest := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:886:        csBundle(1).ldest := (VECTOR_TMP_REG_LMUL + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:890:        csBundle(2).lsrc(0) := (VECTOR_TMP_REG_LMUL + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:891:        csBundle(2).lsrc(1) := VECTOR_TMP_REG_LMUL.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:892:        csBundle(2).ldest := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:895:      when(vlmulReg === "b011".U) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:896:        for (i <- 0 until MAX_VLMUL) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:897:          if (i < MAX_VLMUL - MAX_VLMUL / 2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:900:            csBundle(i).ldest := (VECTOR_TMP_REG_LMUL + i).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:901:          } else if (i < MAX_VLMUL - MAX_VLMUL / 4) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:902:            csBundle(i).lsrc(0) := (VECTOR_TMP_REG_LMUL + (i - MAX_VLMUL / 2) * 2 + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:903:            csBundle(i).lsrc(1) := (VECTOR_TMP_REG_LMUL + (i - MAX_VLMUL / 2) * 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:904:            csBundle(i).ldest := (VECTOR_TMP_REG_LMUL + i).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:905:          } else if (i < MAX_VLMUL - MAX_VLMUL / 8) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:906:            csBundle(6).lsrc(0) := (VECTOR_TMP_REG_LMUL + 5).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:907:            csBundle(6).lsrc(1) := (VECTOR_TMP_REG_LMUL + 4).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:908:            csBundle(6).ldest := (VECTOR_TMP_REG_LMUL + 6).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:914:      when(vlmulReg(2) === 0.U && vlmulReg(1, 0).orR) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:916:         * 2 <= vlmul <= 8
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:920:        csBundle(numOfUop - 1.U).lsrc(1) := VECTOR_TMP_REG_LMUL.U + numOfUop - 2.U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:927:      val vlmul = vlmulReg
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:929:      when(vlmul === VLmul.m8){
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:933:          csBundle(i).ldest := (VECTOR_TMP_REG_LMUL + i).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:937:          csBundle(i).lsrc(0) := (VECTOR_TMP_REG_LMUL + (i - 4) * 2 + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:938:          csBundle(i).lsrc(1) := (VECTOR_TMP_REG_LMUL + (i - 4) * 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:939:          csBundle(i).ldest := (VECTOR_TMP_REG_LMUL + i).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:942:        csBundle(6).lsrc(0) := (VECTOR_TMP_REG_LMUL + 5).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:943:        csBundle(6).lsrc(1) := (VECTOR_TMP_REG_LMUL + 4).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:944:        csBundle(6).ldest := (VECTOR_TMP_REG_LMUL + 6).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:947:          csBundle(7).lsrc(0) := (VECTOR_TMP_REG_LMUL + 6).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:948:          csBundle(7).lsrc(1) := (VECTOR_TMP_REG_LMUL + 6).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:949:          csBundle(7).ldest := (VECTOR_TMP_REG_LMUL + 7).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:953:          csBundle(8).lsrc(1) := (VECTOR_TMP_REG_LMUL + 7).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:958:          csBundle(7).lsrc(0) := (VECTOR_TMP_REG_LMUL + 6).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:959:          csBundle(7).lsrc(1) := (VECTOR_TMP_REG_LMUL + 6).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:960:          csBundle(7).ldest := (VECTOR_TMP_REG_LMUL + 7).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:963:          csBundle(8).lsrc(0) := (VECTOR_TMP_REG_LMUL + 7).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:964:          csBundle(8).lsrc(1) := (VECTOR_TMP_REG_LMUL + 7).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:965:          csBundle(8).ldest := (VECTOR_TMP_REG_LMUL + 8).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:969:          csBundle(9).lsrc(1) := (VECTOR_TMP_REG_LMUL + 8).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:974:          csBundle(7).lsrc(0) := (VECTOR_TMP_REG_LMUL + 6).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:975:          csBundle(7).lsrc(1) := (VECTOR_TMP_REG_LMUL + 6).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:976:          csBundle(7).ldest := (VECTOR_TMP_REG_LMUL + 7).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:979:          csBundle(8).lsrc(0) := (VECTOR_TMP_REG_LMUL + 7).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:980:          csBundle(8).lsrc(1) := (VECTOR_TMP_REG_LMUL + 7).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:981:          csBundle(8).ldest := (VECTOR_TMP_REG_LMUL + 8).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:984:          csBundle(9).lsrc(0) := (VECTOR_TMP_REG_LMUL + 8).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:985:          csBundle(9).lsrc(1) := (VECTOR_TMP_REG_LMUL + 8).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:986:          csBundle(9).ldest := (VECTOR_TMP_REG_LMUL + 9).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:990:          csBundle(10).lsrc(1) := (VECTOR_TMP_REG_LMUL + 9).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:995:      when(vlmul === VLmul.m4) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:999:          csBundle(i).ldest := (VECTOR_TMP_REG_LMUL + i).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1002:        csBundle(2).lsrc(0) := (VECTOR_TMP_REG_LMUL + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1003:        csBundle(2).lsrc(1) := (VECTOR_TMP_REG_LMUL + 0).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1004:        csBundle(2).ldest := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1007:          csBundle(3).lsrc(0) := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1008:          csBundle(3).lsrc(1) := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1009:          csBundle(3).ldest := (VECTOR_TMP_REG_LMUL + 3).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1013:          csBundle(4).lsrc(1) := (VECTOR_TMP_REG_LMUL + 3).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1018:          csBundle(3).lsrc(0) := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1019:          csBundle(3).lsrc(1) := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1020:          csBundle(3).ldest := (VECTOR_TMP_REG_LMUL + 3).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1023:          csBundle(4).lsrc(0) := (VECTOR_TMP_REG_LMUL + 3).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1024:          csBundle(4).lsrc(1) := (VECTOR_TMP_REG_LMUL + 3).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1025:          csBundle(4).ldest := (VECTOR_TMP_REG_LMUL + 4).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1029:          csBundle(5).lsrc(1) := (VECTOR_TMP_REG_LMUL + 4).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1034:          csBundle(3).lsrc(0) := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1035:          csBundle(3).lsrc(1) := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1036:          csBundle(3).ldest := (VECTOR_TMP_REG_LMUL + 3).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1039:          csBundle(4).lsrc(0) := (VECTOR_TMP_REG_LMUL + 3).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1040:          csBundle(4).lsrc(1) := (VECTOR_TMP_REG_LMUL + 3).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1041:          csBundle(4).ldest := (VECTOR_TMP_REG_LMUL + 4).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1044:          csBundle(5).lsrc(0) := (VECTOR_TMP_REG_LMUL + 4).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1045:          csBundle(5).lsrc(1) := (VECTOR_TMP_REG_LMUL + 4).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1046:          csBundle(5).ldest := (VECTOR_TMP_REG_LMUL + 5).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1050:          csBundle(6).lsrc(1) := (VECTOR_TMP_REG_LMUL + 5).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1055:      when(vlmul === VLmul.m2) {
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1058:        csBundle(0).ldest := (VECTOR_TMP_REG_LMUL + 0).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1061:          csBundle(1).lsrc(0) := (VECTOR_TMP_REG_LMUL + 0).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1062:          csBundle(1).lsrc(1) := (VECTOR_TMP_REG_LMUL + 0).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1063:          csBundle(1).ldest := (VECTOR_TMP_REG_LMUL + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1067:          csBundle(2).lsrc(1) := (VECTOR_TMP_REG_LMUL + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1072:          csBundle(1).lsrc(0) := (VECTOR_TMP_REG_LMUL + 0).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1073:          csBundle(1).lsrc(1) := (VECTOR_TMP_REG_LMUL + 0).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1074:          csBundle(1).ldest := (VECTOR_TMP_REG_LMUL + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1077:          csBundle(2).lsrc(0) := (VECTOR_TMP_REG_LMUL + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1078:          csBundle(2).lsrc(1) := (VECTOR_TMP_REG_LMUL + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1079:          csBundle(2).ldest := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1083:          csBundle(3).lsrc(1) := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1088:          csBundle(1).lsrc(0) := (VECTOR_TMP_REG_LMUL + 0).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1089:          csBundle(1).lsrc(1) := (VECTOR_TMP_REG_LMUL + 0).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1090:          csBundle(1).ldest := (VECTOR_TMP_REG_LMUL + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1093:          csBundle(2).lsrc(0) := (VECTOR_TMP_REG_LMUL + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1094:          csBundle(2).lsrc(1) := (VECTOR_TMP_REG_LMUL + 1).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1095:          csBundle(2).ldest := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1098:          csBundle(3).lsrc(0) := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1099:          csBundle(3).lsrc(1) := (VECTOR_TMP_REG_LMUL + 2).U
+/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/decode/DecodeUnitComp.scala:1100:          csBundle(3).ldest := (VECTOR_TMP_REG_LMUL + 3).U
+
+===== 5. CREATE TEMPORARY ASSEMBLER PROBE =====
+PROBE_SOURCE:
+    .text
+    .align 2
+    .globl cie2026_rvv_baseline_probe
+
+cie2026_rvv_baseline_probe:
+    # Exactly eight signed INT8 source elements.
+    # mf2 makes the widening INT16 result occupy one full vector register.
+    vsetivli t0, 8, e8, mf2, ta, ma
+
+    vle8.v      v8, (a0)
+    vle8.v      v9, (a1)
+
+    # signed INT8 x signed INT8 -> signed INT16
+    vwmul.vv    v10, v8, v9
+
+    # Reinterpret the eight INT16 products as SEW=16, LMUL=1.
+    vsetivli t0, 8, e16, m1, ta, ma
+
+    # Zero widening-reduction seed.
+    vmv.v.i     v12, 0
+
+    # signed INT16 reduction -> signed INT32 accumulator/result
+    vwredsum.vs v14, v10, v12
+
+    # Store only the resulting low 32-bit scalar element.
+    vsetivli t0, 1, e32, m1, ta, ma
+    vse32.v     v14, (a2)
+
+    ret
+
+===== 6. FIND RISCV GNU ASSEMBLER =====
+AS_BIN=/usr/bin/riscv64-linux-gnu-as
+OBJDUMP_BIN=/usr/bin/riscv64-linux-gnu-objdump
+
+===== 7. ASSEMBLER PROBE =====
+ASSEMBLER_PROBE_EXIT=0
+
+===== 8. PROBE DISASSEMBLY =====
+
+/tmp/cie2026_vdot_rvv_baseline_probe.o：     文件格式 elf64-littleriscv
+
+
+Disassembly of section .text:
+
+0000000000000000 <cie2026_rvv_baseline_probe-0x2>:
+   0:	0001                	nop
+
+0000000000000002 <cie2026_rvv_baseline_probe>:
+   2:	cc7472d7          	vsetivli	t0,8,e8,mf2,ta,ma
+   6:	02050407          	vle8.v	v8,(a0)
+   a:	02058487          	vle8.v	v9,(a1)
+   e:	ee84a557          	vwmul.vv	v10,v8,v9
+  12:	cc8472d7          	vsetivli	t0,8,e16,m1,ta,ma
+  16:	5e003657          	vmv.v.i	v12,0
+  1a:	c6a60757          	vwredsum.vs	v14,v10,v12
+  1e:	cd00f2d7          	vsetivli	t0,1,e32,m1,ta,ma
+  22:	02066727          	vse32.v	v14,(a2)
+  26:	8082                	ret
+
+===== 9. REQUIRED INSTRUCTION COUNTS =====
+VWMUL_VV_COUNT=1
+VWREDSUM_VS_COUNT=1
+E8_MF2_VSET_COUNT=1
+
+===== 10. MATHEMATICAL RANGE CHECK =====
+MAX_POS_8TERM = 131072
+MAX_NEG_8TERM = -130048
+INT16_PRODUCT_RANGE_OK = 1
+INT32_SUM_RANGE_OK = 1
+
+===== 11. PHASE1/2 FREEZE =====
+P12_TOTAL=46
+P12_OK=46
+P12_FAIL=0
+P12_VERIFY_EXIT=0
+
+===== 12. AUDIT HASH =====

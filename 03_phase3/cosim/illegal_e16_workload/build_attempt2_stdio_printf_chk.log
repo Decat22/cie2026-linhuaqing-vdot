@@ -1,0 +1,21 @@
+# Building cie2026-vdot-illegal-e16 [riscv64-xs] with AM_HOME {/home/chenjunxi/xs-env/nexus-am}
++ CC main.c
++ AS vdot_illegal.S
+# Building lib-am [riscv64-xs]
++ AS src/nemu/common/mainargs.S
++ AR -> build/am-riscv64-xs.a
+# Building lib-klib [riscv64-xs]
+# Creating binary image [riscv64-xs]
++ LD -> build/cie2026-vdot-illegal-e16-riscv64-xs.elf
+riscv64-linux-gnu-ld: warning: /home/chenjunxi/cie2026_phase3_runtime/workload_illegal_e16/build/cie2026-vdot-illegal-e16-riscv64-xs.elf has a LOAD segment with RWX permissions
+riscv64-linux-gnu-ld: /home/chenjunxi/cie2026_phase3_runtime/workload_illegal_e16/build/riscv64-xs//main.o: in function `printf':
+/usr/riscv64-linux-gnu/include/bits/stdio2.h:86:(.text.startup+0x14): undefined reference to `__printf_chk'
+riscv64-linux-gnu-ld: /usr/riscv64-linux-gnu/include/bits/stdio2.h:86:(.text.startup+0x26): undefined reference to `__printf_chk'
+riscv64-linux-gnu-ld: /usr/riscv64-linux-gnu/include/bits/stdio2.h:86:(.text.startup+0x38): undefined reference to `__printf_chk'
+riscv64-linux-gnu-ld: /home/chenjunxi/cie2026_phase3_runtime/workload_illegal_e16/build/riscv64-xs//main.o: in function `main':
+/home/chenjunxi/cie2026_phase3_runtime/workload_illegal_e16/main.c:16:(.text.startup+0x52): undefined reference to `__printf_chk'
+riscv64-linux-gnu-ld: /home/chenjunxi/cie2026_phase3_runtime/workload_illegal_e16/build/riscv64-xs//main.o: in function `printf':
+/usr/riscv64-linux-gnu/include/bits/stdio2.h:86:(.text.startup+0x6c): undefined reference to `__printf_chk'
+riscv64-linux-gnu-ld: /home/chenjunxi/cie2026_phase3_runtime/workload_illegal_e16/build/riscv64-xs//main.o:/usr/riscv64-linux-gnu/include/bits/stdio2.h:86: more undefined references to `__printf_chk' follow
+make: *** [/home/chenjunxi/xs-env/nexus-am/am/arch/riscv64-xs.mk:37：image] 错误 1
+BUILD_EXIT=2

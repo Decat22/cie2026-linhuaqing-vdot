@@ -1,0 +1,36 @@
+Phase 1 VADD FST SHA256 说明
+==============================
+
+波形文件：
+  vadd_15000_17000.fst
+
+提交备份位置：
+  Phase1_Backup/vadd_15000_17000.fst
+
+SHA256：
+  fc7e2628dea45ca2e5bb61407ba965a4504f4abcaab2fe8b30537fbcc8564590
+
+Evidence 原始文件 SHA256：
+  fc7e2628dea45ca2e5bb61407ba965a4504f4abcaab2fe8b30537fbcc8564590
+
+Evidence 与 Phase1_Backup 一致：
+  YES
+
+可移植校验文件：
+  Phase1_Backup/vadd_15000_17000.fst.sha256
+
+校验方法：
+  cd Phase1_Backup
+  sha256sum -c vadd_15000_17000.fst.sha256
+
+说明：
+  原 evidence 目录中的旧 .sha256 文件可能记录创建时的绝对路径。
+  SHA256 摘要本身用于确认文件内容完整性；绝对路径不是文件内容的一部分。
+
+  为方便在其他机器或其他目录中验证，本次在 Phase1_Backup
+  中重新生成了仅使用相对文件名的 SHA256 sidecar。
+
+  FST 波形文件本身未被修改，也没有重新生成。
+
+原始 .sha256 内容：
+  fc7e2628dea45ca2e5bb61407ba965a4504f4abcaab2fe8b30537fbcc8564590  /home/chenjunxi/cie2026_evidence/phase1/wave/vadd_15000_17000.fst

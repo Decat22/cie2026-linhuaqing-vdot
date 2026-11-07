@@ -1,0 +1,6 @@
+sample,custom_compute_cycles,baseline_compute_cycles,compute_speedup,custom_compute_instret,baseline_compute_instret,custom_e2e_cycles,baseline_e2e_cycles,e2e_speedup,custom_e2e_instret,baseline_e2e_instret
+0,269,1283,4.769517,244,1263,1776,2545,1.432995,1489,2251
+1,269,1283,4.769517,244,1263,1776,2545,1.432995,1489,2251
+2,268,1283,4.787313,243,1263,1776,2545,1.432995,1489,2251
+3,269,1283,4.769517,244,1263,1776,2545,1.432995,1489,2251
+4,268,1283,4.787313,243,1263,1776,2545,1.432995,1489,2251

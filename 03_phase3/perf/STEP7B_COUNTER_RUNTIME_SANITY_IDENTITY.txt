@@ -1,0 +1,15 @@
+CIE2026 Phase3 Counter Runtime Sanity
+
+XiangShan_HEAD=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+NEMU_HEAD=55c09a3669d52ae6f6a809bab6e594939b82e512
+EMU_SHA256=0aa1992a1e03cf07b2c28906f9c2cb5f1bca181174aa4f9caf8f0eaeb2dd1ada
+
+BIN=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/perf/counter_sanity_workload/cie2026-perf-counter-sanity-riscv64-xs.bin
+BIN_SHA256=af5653d0bb258b5863c5a9ccc1c2df030fe23ece8050e32bc3058cc344bc5980
+ELF_SHA256=20e4da0cd6ee0762673cc76028f0eda0609ea10988bf970309f3569bfe1566e8
+
+Measurement_mode=RTL only / --no-diff
+Reason=rdcycle is a DUT microarchitectural counter and is not expected to be cycle-synchronous with NEMU
+
+Test_1_iterations=16
+Test_2_iterations=64

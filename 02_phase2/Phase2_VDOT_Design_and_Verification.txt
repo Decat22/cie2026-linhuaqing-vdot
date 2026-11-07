@@ -1,0 +1,251 @@
+CIE2026 XiangShan Kunminghu V2
+Phase 2 - vdot.vv 设计与验证说明
+
+一、目标
+
+在 XiangShan Kunminghu V2 中实现自定义向量点积指令 vdot.vv。
+
+本阶段采用的指令语义：
+
+  SEW = 8
+  VLEN = 128
+
+计算：
+
+  result =
+    sum(i = 0..7)
+    signed(vs1[i]) * signed(vs2[i])
+
+即仅使用两个源向量寄存器中的低 8 个 INT8 元素。
+
+源寄存器的 byte 8..15 不参与点积运算。
+
+本实现将有符号点积结果写入：
+
+  vd[31:0]
+
+并将：
+
+  vd[127:32] = 0
+
+
+二、指令编码与译码
+
+测试使用：
+
+  vd  = v10
+  vs1 = v8
+  vs2 = v9
+
+机器码：
+
+  0x0294050b
+
+测试程序中该指令地址：
+
+  PC = 0x00000000800001ac
+
+内部 VDOT fuOpType：
+
+  0x0e0
+
+完整 RTL 修改涉及：
+
+  VDotType.scala
+  VecDecoder.scala
+  VIMacU.scala
+
+
+三、执行单元实现
+
+VDOT 被送入现有 VIMac 执行通路。
+
+VIMacU 中：
+
+  1. 从 vs1、vs2 分别取得低 8 个 signed INT8 元素；
+  2. 生成 8 个有符号乘积；
+  3. 使用分层加法树完成归约；
+  4. 将最终结果扩展/映射到 32-bit 结果域；
+  5. 结果位于 128-bit 输出的低 32 bit；
+  6. 高 96 bit 清零；
+  7. 保持 VIMac 现有流水级结构。
+
+
+四、正数测试
+
+输入低 8 个元素：
+
+  vs1 = [1,2,3,4,5,6,7,8]
+  vs2 = [1,1,1,1,1,1,1,1]
+
+理论结果：
+
+  1+2+3+4+5+6+7+8 = 36
+
+运行结果：
+
+  VDOT result = [36, 0, 0, 0]
+  VDOT_POSITIVE_PASS
+  HIT GOOD TRAP
+
+
+五、负数测试
+
+输入低 8 个元素：
+
+  vs1 = [-1,-2,-3,-4,-5,-6,-7,-8]
+  vs2 = [1,1,1,1,1,1,1,1]
+
+理论结果：
+
+  -36
+
+运行结果：
+
+  VDOT result = [-36, 0, 0, 0]
+  VDOT_NEGATIVE_PASS
+  HIT GOOD TRAP
+
+
+六、边界测试
+
+最大正结果测试：
+
+  8 * (-128 * -128)
+  = 131072
+  = 0x00020000
+
+运行：
+
+  VDOT_BOUNDARY_MAX_POS_PASS
+
+最大负结果测试：
+
+  8 * (-128 * 127)
+  = -130048
+
+运行：
+
+  VDOT_BOUNDARY_MAX_NEG_PASS
+
+混合数据测试：
+
+  result = 127
+
+运行：
+
+  VDOT_BOUNDARY_MIXED_PASS
+
+
+七、高半区忽略测试
+
+测试程序对源寄存器的高 8 个 byte 设置非零数据。
+
+由于指令只使用 byte 0..7，因此高 8 个 byte 不应影响结果。
+
+运行结果：
+
+  result = 127
+
+并得到：
+
+  VDOT_UPPER_HALF_IGNORED_PASS
+
+
+八、综合测试结果
+
+边界测试最终输出：
+
+  VDOT_OFFICIAL_8TERM_ALL_PASS
+  HIT GOOD TRAP
+
+RVV vadd.vv 回归测试：
+
+  VECTOR_ADD_PASS
+  HIT GOOD TRAP
+
+
+九、波形证据
+
+指令定位：
+
+  23778 ps
+  PC    = 0x00000000800001ac
+  INSTR = 0x0294050b
+
+VIMac 输入：
+
+  23844 ps
+  io_in_valid = 1
+  fuOpType = 0x0e0
+
+  src0 =
+  0x80808080808080808080808080808080
+
+  src1 =
+  0x80808080808080808080808080808080
+
+流水内部结果：
+
+  23846 ps
+
+  vdotResult_r =
+  0x00000000000000000000000000020000
+
+VIMac 输出：
+
+  23848 ps
+  io_out_valid = 1
+
+  vdotResult =
+  0x00000000000000000000000000020000
+
+  io_out_bits_res_data =
+  0x00000000000000000000000000020000
+
+其中：
+
+  0x00020000 = 131072
+
+与 8 个 signed INT8 乘积的理论结果完全一致。
+
+
+十、结论
+
+vdot.vv 已在 XiangShan Kunminghu V2 上完成 RTL 实现。
+
+正数、负数、边界、混合数据和高半区忽略测试全部通过，
+同时保留了 RVV vadd.vv 回归测试通过结果。
+
+RTL patch、最终 RTL 文件、测试源码、运行日志、objdump 和
+GTKWave 波形截图均随本目录提供。
+
+============================================================
+PHASE2_DIFFTEST_POLICY_NOTE
+Phase 2 DiffTest / NEMU 阶段说明
+============================================================
+
+Phase 2 的自定义 vdot.vv 功能测试使用 --no-diff 运行。
+
+这是本项目的阶段划分，并非回避验证：
+NEMU reference model 中对 vdot.vv 的支持属于 Phase 3 的
+NEMU 指令扩展以及 RTL/NEMU 协同仿真任务。
+
+因此，Phase 2 的结论是：
+  XiangShan RTL 中的自定义 vdot.vv 功能验证通过。
+
+Phase 2 不声明：
+  自定义 vdot.vv 已经通过 NEMU DiffTest。
+
+同时，为确认新增 RTL 没有破坏原有标准向量功能，
+本阶段还执行了标准 RVV vadd.vv 回归测试。
+
+rvv_vadd_regression.log 中可以看到：
+  - NEMU reference model；
+  - Difftest enabled；
+  - VECTOR_ADD_PASS；
+  - HIT GOOD TRAP。
+
+Phase 2 的完整测试复现步骤见：
+  REPRODUCE_PHASE2.md
+

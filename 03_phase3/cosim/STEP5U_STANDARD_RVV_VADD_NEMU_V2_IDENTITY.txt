@@ -1,0 +1,18 @@
+CIE2026 Phase3 Step5U Standard RVV vadd.vv Regression
+
+XiangShan_HEAD=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+EMU=/home/chenjunxi/xs-env/XiangShan/build/emu
+EMU_SHA256=0aa1992a1e03cf07b2c28906f9c2cb5f1bca181174aa4f9caf8f0eaeb2dd1ada
+
+NEMU_V2=/home/chenjunxi/cie2026_phase3_runtime/nemu_mtval0_v2/riscv64-nemu-interpreter-so
+NEMU_V2_SHA256=2fc9bce995eb8b89dded03d40bb0a49a9b2769c64e0f19428b23440b5b851fe2
+
+VADD_BIN=/home/chenjunxi/cie2026_workspace/phase1/vadd/build/cie2026-vadd-riscv64-xs.bin
+VADD_BIN_SHA256=e091287f4c4237fc33a37c88c856f2549a8a5255e63b5f653599d7a743ec8c72
+
+VADD_ELF=/home/chenjunxi/cie2026_workspace/phase1/vadd/build/cie2026-vadd-riscv64-xs.elf
+VADD_ELF_SHA256=3bd1848be8958514fbcc2829e6a4a89a9226bc6dda07100de98c2e32c86dcdc2
+
+Expected_A=[1,2,3,4]
+Expected_B=[10,20,30,40]
+Expected_C=[11,22,33,44]

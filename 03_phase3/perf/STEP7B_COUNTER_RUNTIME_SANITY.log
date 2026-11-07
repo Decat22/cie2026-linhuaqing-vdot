@@ -1,0 +1,15 @@
+emu compiled at Sep  6 2026, 13:08:07
+Using simulated 32768B flash
+Using simulated 8386560MB RAM
+The image is /mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/perf/counter_sanity_workload/cie2026-perf-counter-sanity-riscv64-xs.bin
+===== CIE2026 Phase3 Counter Runtime Sanity =====
+CYCLE_DELTA_16=258
+INSTRET_DELTA_16=41
+CYCLE_DELTA_64=371
+INSTRET_DELTA_64=221
+PERF_COUNTER_SANITY_PASS
+Core 0: [32mHIT GOOD TRAP at pc = 0x800001fc
+[0m[35mCore-0 instrCnt = 5,024, cycleCnt = 25,482, IPC = 0.197159
+[0m[34mSeed=0 Guest cycle spent: 25,486 (this will be different from cycleCnt if emu loads a snapshot)
+[0m[34mHost time spent: 89,776ms
+[0mSTEP7B_RUN_EXIT=0

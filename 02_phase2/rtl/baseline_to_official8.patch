@@ -1,0 +1,145 @@
+diff --git a/src/main/scala/xiangshan/backend/decode/VDotType.scala b/src/main/scala/xiangshan/backend/decode/VDotType.scala
+new file mode 100644
+index 000000000..face3efc0
+--- /dev/null
++++ b/src/main/scala/xiangshan/backend/decode/VDotType.scala
+@@ -0,0 +1,26 @@
++package xiangshan.backend.decode
++
++import chisel3._
++import chisel3.util.BitPat
++
++/**
++  * CIE2026 custom vdot.vv internal FuOp.
++  *
++  * VimacType uses:
++  *   [8:7] pad
++  *   [6]   vs2 signed
++  *   [5]   vs1 signed
++  *   [4]   old vd signed
++  *   [3]   widen
++  *   [2:0] opcode
++  *
++  * 01_110_0_000 keeps the low 7 bits identical to signed vmul,
++  * while using the otherwise-unused upper pad bits to distinguish VDOT.
++  */
++object VDotType {
++  val vdot: BitPat = BitPat("b011100000")
++
++  def isVDot(fuOpType: UInt): Bool = {
++    fuOpType === "b011100000".U(9.W)
++  }
++}
+diff --git a/src/main/scala/xiangshan/backend/decode/VecDecoder.scala b/src/main/scala/xiangshan/backend/decode/VecDecoder.scala
+index 376419107..852e46154 100644
+--- a/src/main/scala/xiangshan/backend/decode/VecDecoder.scala
++++ b/src/main/scala/xiangshan/backend/decode/VecDecoder.scala
+@@ -185,7 +185,14 @@ case class VST(src2: BitPat, fuOp: BitPat, strided: Boolean = false, indexed: Bo
+ }
+ 
+ object VecDecoder extends DecodeConstants {
++  // CIE2026 custom vector dot-product instruction.
++  // funct7=0000001, vs2, vs1, funct3=000, vd, custom-0(0001011)
++  // bit 25 is 1, therefore this v0.1 encoding is unmasked.
++  val VDOT_VV = BitPat("b0000001??????????000?????0001011")
++
+   val opivv: Array[(BitPat, XSDecodeBase)] = Array(
++    VDOT_VV          -> OPIVV(FuType.vimac, VDotType.vdot, T, F, F,
++      UopSplitType.VEC_VVV, src3 = SrcType.X),
+     VADD_VV         -> OPIVV(FuType.vialuF, VialuFixType.vadd_vv, T, F, F),
+     VSUB_VV         -> OPIVV(FuType.vialuF, VialuFixType.vsub_vv, T, F, F),
+ 
+diff --git a/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala b/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
+index 27eb8012e..8aa26cc9b 100644
+--- a/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
++++ b/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
+@@ -9,6 +9,7 @@ import xiangshan.backend.fu.vector.Bundles.VSew
+ import xiangshan.backend.fu.vector.utils.VecDataSplitModule
+ import xiangshan.backend.fu.vector.{Mgu, Utils, VecPipedFuncUnit, VecSrcTypeModule}
+ import xiangshan.ExceptionNO
++import xiangshan.backend.decode.VDotType
+ import yunsuan.VialuFixType
+ import yunsuan.encoding.Opcode.VimacOpcode
+ import yunsuan.encoding.{VdType, Vs1IntType, Vs2IntType}
+@@ -64,6 +65,51 @@ class VIMacU(cfg: FuConfig)(implicit p: Parameters) extends VecPipedFuncUnit(cfg
+   private val vimacs = Seq.fill(numVecModule)(Module(new VIMac64b))
+   private val mgu = Module(new Mgu(dataWidth))
+ 
++  // ==========================================================
++  // CIE2026 vdot.vv datapath
++  //
++  // Official semantics for VLEN = 128, SEW = 8:
++  //   use only the LOW 8 signed INT8 elements from vs1
++  //   use only the LOW 8 signed INT8 elements from vs2
++  //
++  // result = sum(vs1[i] * vs2[i]), i = 0..7
++  //
++  // Source bytes [127:64] are intentionally ignored.
++  // The maximum positive result is 8 * (-128 * -128) = 131072,
++  // which requires 19 signed bits. The architectural result is
++  // written as signed INT32 in vd[31:0], with vd[127:32] cleared.
++  //
++  // A balanced reduction tree is used instead of a serial chain.
++  // ==========================================================
++
++  private val vdotProducts = (0 until 8).map { i =>
++    val a = vs1(8 * i + 7, 8 * i).asSInt
++    val b = vs2(8 * i + 7, 8 * i).asSInt
++    a * b
++  }
++
++  private val vdotSumL1 = (0 until 4).map { i =>
++    vdotProducts(2 * i) +& vdotProducts(2 * i + 1)
++  }
++
++  private val vdotSumL2 = (0 until 2).map { i =>
++    vdotSumL1(2 * i) +& vdotSumL1(2 * i + 1)
++  }
++
++  private val vdotSum = vdotSumL2(0) +& vdotSumL2(1)
++
++  private val vdotSum32 = Wire(SInt(32.W))
++  vdotSum32 := vdotSum
++
++  private val vdotComb = Cat(
++    0.U(96.W),
++    vdotSum32.asUInt
++  )
++
++  // VimacCfg has CertainLatency(2).  Keep the custom result aligned
++  // with ctrlVec.last / io.out.valid.
++  private val vdotResult = SNReg(vdotComb, latency)
++
+   /**
+     * [[typeMod]]'s in connection
+     */
+@@ -145,7 +191,26 @@ class VIMacU(cfg: FuConfig)(implicit p: Parameters) extends VecPipedFuncUnit(cfg
+   mgu.io.in.info.dstMask := 0.B
+   mgu.io.in.isIndexedVls := false.B
+ 
+-  io.out.bits.res.data := mgu.io.out.vd
+-  io.out.bits.res.vxsat.get := (outVxsat & mgu.io.out.active).orR
+-  io.out.bits.ctrl.exceptionVec.get(ExceptionNO.illegalInstr) := mgu.io.out.illegal
++  // CIE2026 vdot.vv bypasses normal element-wise MGU result because
++  // it produces one INT32 reduction result rather than an SEW=8 vector.
++  private val outIsVDot = VDotType.isVDot(outCtrl.fuOpType)
++  private val outVDotIllegal = outVecCtrl.vsew =/= VSew.e8
++
++  io.out.bits.res.data := Mux(
++    outIsVDot,
++    vdotResult,
++    mgu.io.out.vd
++  )
++
++  io.out.bits.res.vxsat.get := Mux(
++    outIsVDot,
++    false.B,
++    (outVxsat & mgu.io.out.active).orR
++  )
++
++  io.out.bits.ctrl.exceptionVec.get(ExceptionNO.illegalInstr) := Mux(
++    outIsVDot,
++    outVDotIllegal,
++    mgu.io.out.illegal
++  )
+ }

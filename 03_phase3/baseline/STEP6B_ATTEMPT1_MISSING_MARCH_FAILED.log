@@ -1,0 +1,15 @@
+# Building cie2026-rvv-vdot-baseline [riscv64-xs] with AM_HOME {/home/chenjunxi/xs-env/nexus-am}
++ CC main.c
++ AS baseline.S
+/home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/baseline.S: Assembler messages:
+/home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/baseline.S:30: 错误： unrecognized opcode `vsetivli t0,8,e8,mf2,ta,ma', extension `v' or `zve64x' or `zve32x' required
+/home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/baseline.S:32: 错误： unrecognized opcode `vle8.v v8,(a0)', extension `v' or `zve64x' or `zve32x' required
+/home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/baseline.S:33: 错误： unrecognized opcode `vle8.v v9,(a1)', extension `v' or `zve64x' or `zve32x' required
+/home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/baseline.S:42: 错误： unrecognized opcode `vwmul.vv v10,v8,v9', extension `v' or `zve64x' or `zve32x' required
+/home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/baseline.S:47: 错误： unrecognized opcode `vsetivli t0,8,e16,m1,ta,ma', extension `v' or `zve64x' or `zve32x' required
+/home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/baseline.S:55: 错误： unrecognized opcode `vmv.v.i v12,0', extension `v' or `zve64x' or `zve32x' required
+/home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/baseline.S:62: 错误： unrecognized opcode `vwredsum.vs v14,v10,v12', extension `v' or `zve64x' or `zve32x' required
+/home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/baseline.S:67: 错误： unrecognized opcode `vsetivli t0,1,e32,m1,ta,ma', extension `v' or `zve64x' or `zve32x' required
+/home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/baseline.S:68: 错误： unrecognized opcode `vse32.v v14,(a2)', extension `v' or `zve64x' or `zve32x' required
+make: *** [/home/chenjunxi/xs-env/nexus-am/Makefile.compile:39：/home/chenjunxi/cie2026_phase3_runtime/rvv_vdot_baseline/build/riscv64-xs//baseline.o] 错误 1
+STEP6B_BUILD_EXIT=2

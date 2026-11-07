@@ -1,0 +1,34 @@
+CIE2026 Phase3 Validated NEMU VDOT Runtime V2
+
+Status:
+Independent non-e8 microtest PASS
+mcause=2
+mepc=faulting VDOT PC
+mtval=0
+
+NEMU_HEAD=53bcb5686f8fd05248ae98546b7dc04bdca1bbb0
+NEMU_BRANCH=cie2026-phase3-vdot
+
+Source_candidate=/home/chenjunxi/xs-env/NEMU/build/riscv64-nemu-interpreter-so
+Source_candidate_SHA256=2fc9bce995eb8b89dded03d40bb0a49a9b2769c64e0f19428b23440b5b851fe2
+
+Frozen_runtime=/home/chenjunxi/cie2026_phase3_runtime/nemu_mtval0_v2/riscv64-nemu-interpreter-so
+Frozen_runtime_SHA256=2fc9bce995eb8b89dded03d40bb0a49a9b2769c64e0f19428b23440b5b851fe2
+
+Formal_copy=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/nemu/runtime_mtval0_v2/riscv64-nemu-interpreter-so
+Formal_copy_SHA256=2fc9bce995eb8b89dded03d40bb0a49a9b2769c64e0f19428b23440b5b851fe2
+
+Previous_runtime=/home/chenjunxi/cie2026_phase3_runtime/nemu/riscv64-nemu-interpreter-so
+Previous_runtime_SHA256=60df846989e538fa31ddb96f6c99e58ef522fc5f87235bfcf4e7a668533667f9
+
+Step5O_log=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/nemu/NEMU_VDOT_MTVAL0_CANDIDATE_V2_STEP5O.log
+Step5O_log_SHA256=7bb0fe6b22a93d9d94f7ac7e211edaaaef237876fb6c80ab1cc6b05e4a83ffef
+
+Step5O_identity=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/nemu/NEMU_VDOT_MTVAL0_CANDIDATE_V2_STEP5O_IDENTITY.txt
+Step5O_identity_SHA256=62a344d72a597fa26e7c818e6223a250a86acf84365027faf09ed0d17aabc46d
+
+Patch=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/nemu/NEMU_PHASE3_VDOT_MTVAL0_CANDIDATE_V2.patch
+Patch_SHA256=d7b222c92ac2d9fa78c4f41a35452e77a4d2d4a52c83e16bd6069e06fd3d9472
+
+Build_log=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/nemu/NEMU_BUILD_MTVAL0_CANDIDATE_V2.log
+Build_log_SHA256=e8ad6e984c8316dd63b8f847ec1886b819c8c3b06a706ba4d7af45f367b42790

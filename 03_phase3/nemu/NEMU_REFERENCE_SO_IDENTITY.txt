@@ -1,0 +1,27 @@
+CIE2026 Phase3 NEMU Reference Model Identity
+
+NEMU branch:
+cie2026-phase3-vdot
+
+NEMU baseline HEAD:
+53bcb5686f8fd05248ae98546b7dc04bdca1bbb0
+
+Tracked source files:
+src/isa/riscv64/include/isa-all-instr.h
+src/isa/riscv64/instr/decode.c
+src/isa/riscv64/instr/rvv/vcompute.h
+
+Patch SHA256:
+9028701c9feaae88ee232967fb1057e4b962fc0ebfd17207fb2db3ea42dc310d  /mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/nemu/NEMU_PHASE3_VDOT.patch
+
+Configuration:
+riscv64-xs-ref_defconfig
+
+Build command:
+make -j2
+
+Reference SO absolute path:
+/home/chenjunxi/cie2026_phase3_runtime/nemu/riscv64-nemu-interpreter-so
+
+Reference SO SHA256:
+60df846989e538fa31ddb96f6c99e58ef522fc5f87235bfcf4e7a668533667f9  /home/chenjunxi/cie2026_phase3_runtime/nemu/riscv64-nemu-interpreter-so

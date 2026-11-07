@@ -1,0 +1,26 @@
+CIE2026 Phase3 Mathematically Equivalent RVV Baseline
+
+XiangShan_HEAD=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+NEMU_HEAD=55c09a3669d52ae6f6a809bab6e594939b82e512
+
+Algorithm:
+VLEN=128
+vsetivli VL=8,e8,mf2
+vle8.v x2
+vwmul.vv signed INT8 -> INT16
+vsetivli VL=8,e16,m1
+vmv.v.i zero reduction seed
+vwredsum.vs signed INT16 -> INT32
+vsetivli VL=1,e32,m1
+vse32.v scalar result
+
+Custom_VDOT_instruction_used=NO
+
+Source_main_SHA256=5437559bfe68efcf0065a1102c201a864a841a6b4a4526c307257ebe1927bc4b
+Source_baseline_S_SHA256=8083775da0b7489b29a121c0c72563a21d1cb15fffde4b3e3b3666b59c6bf799
+Makefile_SHA256=92b1872501069441f41623b63235ce5044259fa51b0259c1326607bbba132a42
+
+ELF_SHA256=
+BIN_SHA256=
+
+Step6A_SHA256=5fe2cb9eee9367d695dce41742eadeb758ccc16249ca5b289696ffb3fba1b479

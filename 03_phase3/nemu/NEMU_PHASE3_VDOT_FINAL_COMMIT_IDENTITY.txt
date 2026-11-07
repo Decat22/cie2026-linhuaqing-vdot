@@ -1,0 +1,22 @@
+CIE2026 Phase3 Final NEMU VDOT Commit
+
+Branch=cie2026-phase3-vdot
+Baseline=53bcb5686f8fd05248ae98546b7dc04bdca1bbb0
+Final_commit=53bcb5686f8fd05248ae98546b7dc04bdca1bbb0
+
+Commit_subject=cie2026: add custom vdot.vv reference model
+
+Modified_files:
+src/isa/riscv64/include/isa-all-instr.h
+src/isa/riscv64/instr/decode.c
+src/isa/riscv64/instr/rvv/vcompute.h
+
+Final_patch=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/nemu/NEMU_PHASE3_VDOT_FINAL.patch
+Final_patch_SHA256=d7b222c92ac2d9fa78c4f41a35452e77a4d2d4a52c83e16bd6069e06fd3d9472
+
+Validated_runtime=/home/chenjunxi/cie2026_phase3_runtime/nemu_mtval0_v2/riscv64-nemu-interpreter-so
+Validated_runtime_SHA256=2fc9bce995eb8b89dded03d40bb0a49a9b2769c64e0f19428b23440b5b851fe2
+
+Step5T_illegal_cosim_SHA256=8f45ad6f6e2611d9e58a7c4268260ea686d9755ed3e2a323de94d9ff8113c814
+Step5U_vadd_regression_SHA256=e83861ec45a72b2743c12a2cbe8619cefe96f8383e4e352f47a6c719391da5f1
+Step5V_legal_vdot_summary_SHA256=633e67662b34b9843a48eac00b99ecbbce458f4d95d9c0f29e5ff5e1d7f9607c

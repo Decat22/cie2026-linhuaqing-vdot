@@ -1,0 +1,5 @@
+# Building cie2026-vdot-illegal-e16 [riscv64-xs] with AM_HOME {/home/chenjunxi/xs-env/nexus-am}
++ CC main.c
+make: riscv64-unknown-linux-gnu-gcc: 没有那个文件或目录
+make: *** [/home/chenjunxi/xs-env/nexus-am/Makefile.compile:29：/home/chenjunxi/cie2026_phase3_runtime/workload_illegal_e16/build/riscv64-xs//main.o] 错误 127
+BUILD_EXIT=2

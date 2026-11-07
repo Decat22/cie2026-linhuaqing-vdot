@@ -1,0 +1,39 @@
+CIE2026 Phase3 Fixed RVV Baseline RTL-NEMU DiffTest
+
+XiangShan_HEAD=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+NEMU_HEAD=55c09a3669d52ae6f6a809bab6e594939b82e512
+
+EMU=/home/chenjunxi/xs-env/XiangShan/build/emu
+EMU_SHA256=0aa1992a1e03cf07b2c28906f9c2cb5f1bca181174aa4f9caf8f0eaeb2dd1ada
+
+NEMU_SO=/home/chenjunxi/cie2026_phase3_runtime/nemu_mtval0_v2/riscv64-nemu-interpreter-so
+NEMU_SO_SHA256=2fc9bce995eb8b89dded03d40bb0a49a9b2769c64e0f19428b23440b5b851fe2
+
+Fixed_baseline_BIN=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/baseline/workload/cie2026-rvv-vdot-baseline-riscv64-xs.bin
+Fixed_baseline_BIN_SHA256=26f11377eb234681f567ccb75757bcd08fc3b73d47ab1649e91346610bae0590
+
+Fixed_baseline_ELF=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/baseline/workload/cie2026-rvv-vdot-baseline-riscv64-xs.elf
+Fixed_baseline_ELF_SHA256=56e8429b178d0ddc3e14d51220b2127008110d6d3e5f38d900b25908774e7ad6
+
+Vector_enable:
+li t1,1536
+csrs mstatus,t1
+
+Equivalent_RVV_algorithm:
+vsetivli VL=8,e8,mf2
+vle8.v x2
+vwmul.vv
+vsetivli VL=8,e16,m1
+vmv.v.i zero seed
+vwredsum.vs
+vsetivli VL=1,e32,m1
+vse32.v
+
+Custom_VDOT_used=NO
+
+Expected_positive=36
+Expected_negative=-36
+Expected_max_positive=131072
+Expected_max_negative=-130048
+Expected_mixed=127
+Expected_upper_half_ignored=127

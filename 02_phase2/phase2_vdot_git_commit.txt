@@ -1,0 +1,19 @@
+CIE2026 XiangShan Kunminghu V2
+Phase 2 vdot.vv Git Version
+
+Baseline XiangShan commit:
+16ae9ddcda54fc9a2fddffad73174cf793ac7814
+
+Final Phase 2 commit:
+86d7b4b98d0235b4a009dfd15b032bd558df33dc
+
+Branch:
+cie2026-vdot8-official
+
+Final commit subject:
+cie2026: correct vdot.vv to official 8-term semantics
+
+Baseline -> final RTL files:
+A  src/main/scala/xiangshan/backend/decode/VDotType.scala
+M  src/main/scala/xiangshan/backend/decode/VecDecoder.scala
+M  src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala

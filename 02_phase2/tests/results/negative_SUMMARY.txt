@@ -1,0 +1,6 @@
+===== CIE2026 XiangShan Official VDOT Negative Test =====
+Expected low-8 dot = -36
+VDOT result = [-36, 0, 0, 0]
+VDOT_NEGATIVE_PASS
+Core 0: [32mHIT GOOD TRAP at pc = 0x800001e6
+[0mVDOT8_NEG_RUN_EXIT=0

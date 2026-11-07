@@ -1,0 +1,517 @@
+===== PHASE3 STEP5M: DECODE STATE CHAIN AUDIT =====
+
+===== 1. CPU-EXEC LONGJMP IMPLEMENTATION =====
+   185	void pop_context() {
+   186	  if (context_idx < 0) {
+   187	    panic("Unexcepted exeception context idx = %d", context_idx);
+   188	  }
+   189	  context_idx--;
+   190	}
+   191	
+   192	_Noreturn void longjmp_context(int cause) {
+   193	  Loge("Longjmp to jbuf_exec with cause: %i", cause);
+   194	  if (context_idx < 0) {
+   195	    panic("Unexcepted exeception context idx = %d", context_idx);
+   196	  }
+   197	  longjmp(context_stack[context_idx], cause);
+   198	}
+   199	
+   200	_Noreturn void longjmp_exception(int ex_cause) {
+   201	  if (context_idx == 0) {
+   202	    // context_idx == 0 means only the execute loop context saved.
+   203	  #ifdef CONFIG_GUIDED_EXEC
+   204	    cpu.guided_exec = false;
+   205	  #endif
+   206	    g_ex_cause = ex_cause;
+   207	    Loge("longjmp_context(NEMU_EXEC_EXCEPTION)");
+   208	    longjmp_context(NEMU_EXEC_EXCEPTION);
+   209	  } else {
+   210	    // For other condition, we should pass parameter ex_cause to longjmp
+   211	    longjmp_context(ex_cause);
+   212	  }
+   213	}
+   214	
+   215	#ifdef CONFIG_PERF_OPT
+   216	static bool manual_cpt_quit = false;
+   217	#define FILL_EXEC_TABLE(name) [concat(EXEC_ID_, name)] = &&concat(exec_, name),
+   218	
+   219	// this rtl_j() is only used in PERF_OPT
+   220	#define rtl_j(s, target)                                                       \
+
+===== 2. CPU-EXEC AROUND LINE 772 =====
+   735	#endif
+   736	
+   737	/* Simulate how the CPU works. */
+   738	void cpu_exec(uint64_t n) {
+   739	  #ifndef CONFIG_LIGHTQS
+   740	    IFDEF(CONFIG_SHARE, assert(n <= 1));
+   741	  #endif
+   742	  g_print_step = ISNDEF(CONFIG_SHARE) && (n < MAX_INSTR_TO_PRINT);
+   743	  switch (nemu_state.state) {
+   744	  case NEMU_END:
+   745	  case NEMU_ABORT:
+   746	    printf("Program execution has ended. To restart the program, exit NEMU and run again.\n");
+   747	    return;
+   748	  default:
+   749	    nemu_state.state = NEMU_RUNNING;
+   750	    Loge("Setting NEMU state to RUNNING");
+   751	  }
+   752	
+   753	  uint64_t timer_start = get_time();
+   754	
+   755	  n_remain_total = n; // + AHEAD_LENGTH; // deal with setjmp()
+   756	  Loge("cpu_exec will exec %lu instrunctions", n_remain_total);
+   757	
+   758	  // Prepare for longjmp
+   759	  int cause;
+   760	  PUSH_CONTEXT(&cause);
+   761	  if (cause) {
+   762	    // longjmp happened. Search longjmp_context for details.
+   763	    // Here is exception handle.
+   764	
+   765	    // Settle instruction counting for the last BB.
+   766	    // When longjmp happened, there is no chance to do instruction counting for bb.
+   767	    IFDEF(CONFIG_INSTR_CNT_BY_BB, n_remain -= prev_s->idx_in_bb - 1);
+   768	    // No need to update n_remain or g_nr_guest_instr for INSTR_CNT_BY_INSTR:
+   769	    // This instruction has not finished executing, while the last instruction has been counted.
+   770	
+   771	    // Record instruction for exception.
+   772	    IFDEF(CONFIG_TVAL_EX_II, cpu.instr = prev_s->isa.instr.val);
+   773	
+   774	    // settle instruction counting, as BATCH has ended.
+   775	    update_instr_cnt();
+   776	
+   777	    IFDEF(CONFIG_PERF_OPT, update_global());
+   778	
+   779	    Loge("Longjmp happened. total insts: %'lu, cpu_exec remain: %'li", get_abs_instr_count(), n_remain_total);
+   780	  }
+   781	
+   782	  while (nemu_state.state == NEMU_RUNNING &&
+   783	         MUXDEF(CONFIG_ENABLE_INSTR_CNT, n_remain_total > 0, true)) {
+   784	    #ifdef CONFIG_DEVICE
+   785	      extern void device_update();
+   786	      device_update();
+   787	    #endif
+   788	
+   789	    #ifdef CONFIG_ISA_riscv64
+   790	      void update_riscv_timer();
+
+===== 3. ALL PREV_S ASSIGNMENTS / USES =====
+67-#endif
+68-
+69-// Note for BY_BB mode:
+70-// - g_nr_guest_instr provides BATCH-level instr-count.
+71-// - n_remain and n_batch provide BB-level instr-count.
+72-// - s->idx_in_bb provides INSTR-level instr-count.
+73-// - instr_count_bb_unsettled handles special case where BATCH is end but BB is not end.
+74-
+75:Decode *prev_s;
+76-
+77-#ifdef CONFIG_DEBUG
+78-static inline void debug_hook(vaddr_t pc, const char *asmbuf) {
+79-  Logti("%s", asmbuf);
+80-  if (g_print_step) {
+81-    puts(asmbuf);
+82-  }
+83-
+84-  void scan_watchpoint(vaddr_t pc);
+85-  scan_watchpoint(pc);
+86-}
+87-#endif
+88-
+89-
+90:void save_globals(Decode *s) { IFDEF(CONFIG_PERF_OPT, prev_s = s); }
+91-
+92-// Get the number of executed instructions:
+93-// Two function is provided: get_abs_instr_count() and get_abs_instr_count_csr()
+94-// For INSTR-level (INSTR_CNT_BY_INSTR), there is no different between two function.
+95-// For BB-level (INSTR_CNT_BY_BB):
+96-//  - get_abs_instr_count() returns bb-level instruction counts, and can be used everywhere.
+97-//  - get_abs_instr_count_csr() returns instr-level instruction counts, and should only be used during instrcution execution.
+98-
+99-// The integration of these two functions is challenging due to the following issue:
+100-//   After one basic block ends, idx_in_bb is settled into n_remain, but s->idx_in_bb could not be clear.
+101-//   As a result, get_abs_instr_count_csr() will return an incorrect value with a duplicate size of bb.
+102-
+--
+116-#endif
+117-}
+118-
+119-// This function returns the number of executed instructions. The accuracy is always instruction.
+120-// This is only used in CSR read & write, for basic counters (mcycle, minstret, cycle, instret)
+121-// Refer to the comment above for more technical details.
+122-uint64_t get_abs_instr_count_csr() {
+123-#if defined(CONFIG_INSTR_CNT_BY_BB)
+124:  return get_abs_instr_count() + prev_s->idx_in_bb - 1;
+125-  // s of this instruction is saved into prev_s, before csrrw() in rtl_sys_slow_path().
+126-#elif defined(CONFIG_INSTR_CNT_BY_INSTR)
+127-  // INSTR-level
+128-  return g_nr_guest_instr;
+129-#else // CONFIG_INSTR_CNT_DISABLED
+130-  return 0;
+131-#endif
+132-}
+133-
+134-static void update_instr_cnt() {
+135-#ifdef CONFIG_ENABLE_INSTR_CNT
+136-  uint32_t n_executed = n_batch - n_remain;
+--
+305-                                     _this->snpc - _this->pc));
+306-  IFDEF(CONFIG_DEBUG, debug_hook(_this->pc, _this->logbuf));
+307-  IFDEF(CONFIG_DIFFTEST, save_globals(next));
+308-  IFDEF(CONFIG_DIFFTEST, cpu.pc = next->pc);
+309-  IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, next->pc));
+310-}
+311-
+312-#ifndef CONFIG_SHARE
+313:uint64_t per_bb_profile(Decode *prev_s, Decode *s, bool control_taken) {
+314-  // checkpoint_icount_base is set from nemu_trap.
+315-  // Profiling and checkpointing use this as the starting point for instruction counting.
+316-  uint64_t abs_inst_count = get_abs_instr_count() - checkpoint_icount_base;
+317-  // workload_loaded set from nemu_trap
+318-  if (profiling_state == SimpointProfiling && (workload_loaded||donot_skip_boot)) {
+319:    simpoint_profiling(prev_s->pc, true, abs_inst_count);
+320-    simpoint_profiling(s->pc, false, abs_inst_count);
+321-  }
+322-
+323-  //umod or not set force m mod
+324-  extern bool able_to_take_cpt();
+325-  bool able_to_take = able_to_take_cpt() || force_cpt_mmode;
+326-  if (!able_to_take) {
+327-    return abs_inst_count;
+328-  }
+329-
+330-  //
+331-  if (!(workload_loaded||donot_skip_boot)) {
+--
+423-    // Here is per bb action.
+424-    // When jump or branch happens, it will goto here.
+425-
+426-    // Exit the execute() loop after certain basic blocks, even if instr count is disabled.
+427-    IFDEF(CONFIG_INSTR_CNT_DISABLED, n_remain -= 1);
+428-
+429-    if (is_ctrl) {
+430-      uint64_t abs_inst_count = per_bb_profile(prev_s, s, br_taken);
+431:      Logtb("prev pc = 0x%lx, pc = 0x%lx", prev_s->pc, s->pc);
+432-      Logtb("Executed %ld instructions in total, pc: 0x%lx\n",
+433:            (int64_t)abs_inst_count, prev_s->pc);
+434-    }
+435-    if (manual_cpt_quit) {
+436-      Log("unlikely(manual_cpt_quit)=%ld, manual_cpt_quit=%d",
+437-          unlikely(manual_cpt_quit), manual_cpt_quit);
+438-    }
+439-
+440-    if (unlikely(n_remain <= 0)) {
+441-      // goto end_of_loop;
+442-      break;
+443-    }
+444-    if (unlikely(manual_cpt_quit)) {
+445-      // goto end_of_loop;
+--
+448-
+449-    def_finish();
+450-    // Here is per inst action.
+451-    // Most of executed instruction (except some priv instructions) will goto here.
+452-    // Don't put Log here to improve performance
+453-
+454-    // clear for recording next inst
+455-    is_ctrl = false;
+456:    Logti("prev pc = 0x%lx, pc = 0x%lx", prev_s->pc, s->pc);
+457-
+458-    IFDEF(CONFIG_INSTR_CNT_BY_INSTR, g_nr_guest_instr += 1);
+459-    IFDEF(CONFIG_INSTR_CNT_BY_INSTR, n_remain -= 1);
+460-
+461-    save_globals(s);
+462-    debug_difftest(this_s, s);
+463-  }
+464-
+465-end_of_loop:
+466-  // Here is per loop action and some priv instruction action.
+467-  // If end_of_bb and n_remain <= 0, it will goto here.
+468-  // Most of priv instruction (using rtl_sys_slow_path()) will goto here.
+469-
+470-  // Settle instruction counting for the last instruction:
+471-  // - If it is end_of_bb and n_remain < 0, it will goto here without "per inst action".
+472-  // - If it is priv instruction, it will goto here without "per inst action".
+473-  IFDEF(CONFIG_INSTR_CNT_BY_INSTR, g_nr_guest_instr += 1);
+474-  IFDEF(CONFIG_INSTR_CNT_BY_INSTR, n_remain -= 1);
+475-  // g_nr_guest_instr_temp += 1;
+476-
+477:  Logti("end_of_loop: prev pc = 0x%lx, pc = 0x%lx", prev_s->pc, s->pc);
+478-  Loge("total insts: %'lu, execute remain: %'d", get_abs_instr_count(), n_remain);
+479-
+480-  if (is_ctrl) {
+481-    per_bb_profile(prev_s, s, br_taken);
+482-  }
+483-
+484-  if (manual_cpt_quit) {
+485-    Log("unlikely(manual_cpt_quit)=%ld, manual_cpt_quit=%d",
+486-        unlikely(manual_cpt_quit), manual_cpt_quit);
+487-  }
+488-
+489-  debug_difftest(this_s, s);
+--
+652-#endif // CONFIG_LIGHTQS_DEBUG
+653-  return n - reg_ss.inst_cnt;
+654-}
+655-
+656-#endif // CONFIG_LIGHTQS
+657-
+658-static void execute(int n) {
+659-  static Decode s;
+660:  prev_s = &s;
+661-  for (n_remain = n; n_remain > 0; n_remain -= 1) {
+662-#ifdef CONFIG_LIGHTQS_DEBUG
+663-    printf("ahead pc %lx %lx\n", g_nr_guest_instr, cpu.pc);
+664-#endif // CONFIG_LIGHTQS_DEBUG
+665-    cpu.amo = false;
+666-    cpu.pbmt = 0;
+667-    fetch_decode(&s, cpu.pc);
+668-    cpu.debug.current_pc = s.pc;
+669-    cpu.pc = s.snpc;
+670-#ifdef CONFIG_SHARE
+671-    if (unlikely(dynamic_config.debug_difftest)) {
+672-      fprintf(stderr, "(%d) [NEMU] pc = 0x%lx inst %x\n", getpid(), s.pc,
+--
+725-    16 - (3 * (int)(s->snpc - s->pc)), "",
+726-    log_asmbuf
+727-  ));
+728-  s->EHelper = g_exec_table[idx];
+729-}
+730-
+731-#ifdef CONFIG_PERF_OPT
+732-static void update_global() {
+733:  cpu.pc = prev_s->pc;
+734-}
+735-#endif
+736-
+737-/* Simulate how the CPU works. */
+738-void cpu_exec(uint64_t n) {
+739-  #ifndef CONFIG_LIGHTQS
+740-    IFDEF(CONFIG_SHARE, assert(n <= 1));
+741-  #endif
+742-  g_print_step = ISNDEF(CONFIG_SHARE) && (n < MAX_INSTR_TO_PRINT);
+743-  switch (nemu_state.state) {
+744-  case NEMU_END:
+745-  case NEMU_ABORT:
+--
+759-  int cause;
+760-  PUSH_CONTEXT(&cause);
+761-  if (cause) {
+762-    // longjmp happened. Search longjmp_context for details.
+763-    // Here is exception handle.
+764-
+765-    // Settle instruction counting for the last BB.
+766-    // When longjmp happened, there is no chance to do instruction counting for bb.
+767:    IFDEF(CONFIG_INSTR_CNT_BY_BB, n_remain -= prev_s->idx_in_bb - 1);
+768-    // No need to update n_remain or g_nr_guest_instr for INSTR_CNT_BY_INSTR:
+769-    // This instruction has not finished executing, while the last instruction has been counted.
+770-
+771-    // Record instruction for exception.
+772:    IFDEF(CONFIG_TVAL_EX_II, cpu.instr = prev_s->isa.instr.val);
+773-
+774-    // settle instruction counting, as BATCH has ended.
+775-    update_instr_cnt();
+776-
+777-    IFDEF(CONFIG_PERF_OPT, update_global());
+778-
+779-    Loge("Longjmp happened. total insts: %'lu, cpu_exec remain: %'li", get_abs_instr_count(), n_remain_total);
+780-  }
+781-
+782-  while (nemu_state.state == NEMU_RUNNING &&
+783-         MUXDEF(CONFIG_ENABLE_INSTR_CNT, n_remain_total > 0, true)) {
+784-    #ifdef CONFIG_DEVICE
+--
+801-      #endif // LIGHTQS
+802-    #endif // CONFIG_SHARE
+803-
+804-    if (cause == NEMU_EXEC_EXCEPTION) {
+805-      Loge("Handle NEMU_EXEC_EXCEPTION");
+806-      cause = 0;
+807-      IFDEF(CONFIG_TDATA1_ETRIGGER, trig_action_t action = check_triggers_etrigger(cpu.TM, g_ex_cause));
+808-
+809:      cpu.pc = raise_intr(g_ex_cause, prev_s->pc);
+810-      cpu.amo = false; // clean up
+811-      cpu.pbmt = 0;
+812-
+813-      // No need to settle instruction counting here, as it is done in longjmp handler.
+814-      // It's necessary to flush tcache for exception: addr space may conflict in different priv/mmu mode.
+815-      IFDEF(CONFIG_PERF_OPT, tcache_handle_flush(cpu.pc));
+816-
+817-      // Trigger may raise EX_BP and perform longjmp.
+818-      IFDEF(CONFIG_TDATA1_ETRIGGER, trigger_handler(TRIG_TYPE_ETRIG, action, 0));
+819-
+820-      // End main loop as difftest ref.
+821-      IFDEF(CONFIG_SHARE, break);
+
+===== 4. DEF_EHELPER MACRO DEFINITION =====
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-9-* THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-10-* EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-11-* MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-12-*
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-13-* See the Mulan PSL v2 for more details.
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-14-***************************************************************************************/
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-15-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-16-#define def_AMO_EHelper(name) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h:17:def_EHelper(name) { \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-18-  extern void rtl_amo_slow_path(Decode *s, rtlreg_t *dest, const rtlreg_t *src1, const rtlreg_t *src2); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-19-  rtl_amo_slow_path(s, ddest, dsrc1, dsrc2); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-20-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-21-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-22-#if defined(CONFIG_DEBUG) || defined(CONFIG_SHARE)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-23-#define AMO_LIST(f, s) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-24-  f(concat3(lr     , _, s)) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-25-  f(concat3(sc     , _, s)) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-26-  f(concat3(amoswap, _, s)) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-27-  f(concat3(amoadd , _, s)) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-28-  f(concat3(amoor  , _, s)) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-29-  f(concat3(amoand , _, s)) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-30-  f(concat3(amoxor , _, s)) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-31-  f(concat3(amomaxu, _, s)) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-32-  f(concat3(amomax , _, s)) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rva/exec.h-33-  f(concat3(amominu, _, s)) \
+--
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-10-* THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-11-* EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-12-* MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-13-*
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-14-* See the Mulan PSL v2 for more details.
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-15-***************************************************************************************/
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-16-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-17-#define def_SYS_EHelper(name) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h:18:def_EHelper(name) { \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-19-  extern int rtl_sys_slow_path(Decode *s, rtlreg_t *dest, const rtlreg_t *src1, uint32_t id, rtlreg_t *jpc); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-20-  int jmp = rtl_sys_slow_path(s, ddest, dsrc1, id_src2->imm, s0); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-21-  if (jmp) rtl_priv_jr(s, s0); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-22-  else rtl_priv_next(s); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-23-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-24-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-25-#if defined(CONFIG_DEBUG) || defined(CONFIG_SHARE)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-26-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-27-#ifdef CONFIG_RVH
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-28-#define def_hld_template(name) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h:29:  def_EHelper(name){ \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-30-    extern int hload(Decode *s, rtlreg_t *dest, const rtlreg_t * src1, uint32_t id); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-31-    hload(s, ddest, dsrc1, id_src2->imm); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-32-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-33-#define def_hst_template(name) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h:34:def_EHelper(name){ \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-35-  extern int hstore(Decode *s, rtlreg_t *dest, const rtlreg_t * src1, const rtlreg_t * src2); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-36-  hstore(s, ddest, dsrc1, dsrc2); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-37-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-38-#define RVH_LD_INST_LIST(f) f(hlv_b) f(hlv_bu) f(hlv_h) f(hlv_hu) f(hlvx_hu) f(hlv_w) f(hlvx_wu) f(hlv_wu) f(hlv_d)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-39-#define RVH_ST_INST_LIST(f)  f(hsv_b) f(hsv_h) f(hsv_w) f(hsv_d)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-40-#ifdef CONFIG_RV_SVINVAL
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-41-  #define RVH_SYS_INST_LIST(f) f(hfence_vvma) f(hfence_gvma) f(hinval_vvma) f(hinval_gvma)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-42-#else
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-43-  #define RVH_SYS_INST_LIST(f) f(hfence_vvma) f(hfence_gvma)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-44-#endif // CONFIG_RV_SVINVAL
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-45-MAP(RVH_SYS_INST_LIST, def_SYS_EHelper)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-46-MAP(RVH_LD_INST_LIST, def_hld_template)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-47-MAP(RVH_ST_INST_LIST, def_hst_template)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-48-#endif // CONFIG_RVH
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-49-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/priv/exec.h-50-#ifdef CONFIG_RV_SMRNMI
+--
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-32-  rtl_fsr(s, ddest, ddest, FPCALL_W32);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-33-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-34-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-35-def_EHelper(fsw_mmu) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-36-  rtl_sm(s, ddest, dsrc1, id_src2->imm, 4, MMU_TRANSLATE);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-37-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-38-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-39-#define def_fop_template(name, op, w) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h:40:  def_EHelper(name) { \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-41-    rtl_hostcall(s, HOSTCALL_FP, ddest, dsrc1, dsrc2, FPCALL_CMD(op, w)); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-42-    rtl_fsr(s, ddest, ddest, w); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-43-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-44-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-45-def_fop_template(fadds, FPCALL_ADD, FPCALL_W32)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-46-def_fop_template(fsubs, FPCALL_SUB, FPCALL_W32)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-47-def_fop_template(fmuls, FPCALL_MUL, FPCALL_W32)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-48-def_fop_template(fdivs, FPCALL_DIV, FPCALL_W32)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-49-def_fop_template(fmins, FPCALL_MIN, FPCALL_W32)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-50-def_fop_template(fmaxs, FPCALL_MAX, FPCALL_W32)
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-51-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-52-def_EHelper(fsqrts) {
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-53-  rtl_hostcall(s, HOSTCALL_FP, ddest, dsrc1, rz, FPCALL_CMD(FPCALL_SQRT, FPCALL_W32));
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-54-  rtl_fsr(s, ddest, ddest, FPCALL_W32);
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-55-}
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvf/exec.h-56-
+--
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-1-#define def_ld_template_with_trigger(name, rtl_instr, width, mmu_mode) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h:2:  def_EHelper(name) { \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-3-    trig_action_t action = TRIG_ACTION_NONE; \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-4-    const vaddr_t vaddr = *dsrc1 + id_src2->imm; \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-5-    action = check_triggers_mcontrol6(cpu.TM, TRIG_OP_LOAD, vaddr, TRIGGER_NO_VALUE); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-6-    trigger_handler(TRIG_TYPE_MCONTROL6, action, vaddr); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-7-    concat(rtl_, rtl_instr) (s, ddest, dsrc1, id_src2->imm, width, mmu_mode); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-8-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-9-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-10-#define def_st_template_with_trigger(name, rtl_instr, width, mmu_mode) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h:11:  def_EHelper(name) { \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-12-    trig_action_t action = TRIG_ACTION_NONE; \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-13-    const vaddr_t vaddr = *dsrc1 + id_src2->imm; \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-14-    const word_t data = *ddest; \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-15-    action = check_triggers_mcontrol6(cpu.TM, TRIG_OP_STORE, vaddr, data); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-16-    trigger_handler(TRIG_TYPE_MCONTROL6, action, vaddr); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-17-    concat(rtl_, rtl_instr) (s, ddest, dsrc1, id_src2->imm, width, mmu_mode); \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-18-  }
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-19-
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-20-#define def_all_ldst(suffix, mmu_mode) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-21-  def_ld_template_with_trigger(concat(ld , suffix), lms, 8, mmu_mode) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-22-  def_ld_template_with_trigger(concat(lw , suffix), lms, 4, mmu_mode) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-23-  def_ld_template_with_trigger(concat(lh , suffix), lms, 2, mmu_mode) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-24-  def_ld_template_with_trigger(concat(lb , suffix), lms, 1, mmu_mode) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-25-  def_ld_template_with_trigger(concat(lwu, suffix), lm , 4, mmu_mode) \
+/home/chenjunxi/xs-env/NEMU/src/isa/riscv64/instr/rvi/ldst_trig.h-26-  def_ld_template_with_trigger(concat(lhu, suffix), lm , 2, mmu_mode) \
+
+===== 5. CUSTOM HELPER =====
+278- *   - use only source bytes 0..7
+279- *   - signed INT8 x signed INT8
+280- *   - signed INT32 sum
+281- *   - vd[31:0] = result bit pattern
+282- *   - vd[127:32] = 0
+283- *
+284- * The arithmetic term count is fixed at 8 and does not follow vl.
+285- */
+286:def_EHelper(cie2026_vdot_vv) {
+287-  require_vector(true);
+288-
+289-  // NEMU encodes e8 as vsew == 0.
+290-  if (vtype->vsew != 0) {
+291-#ifdef CONFIG_TVAL_EX_II
+292-    // Match frozen XiangShan backend-generated illegal-instruction mtval = 0.
+293-    cpu.instr = 0;
+294-#endif
+295-    longjmp_exception(EX_II);
+296-  }
+297-
+298-  int32_t sum = 0;
+299-
+300-  for (int i = 0; i < 8; i++) {
+301-    int32_t a = (int8_t)vreg_b(id_src->reg, i);
+302-    int32_t b = (int8_t)vreg_b(id_src2->reg, i);
+303-
+304-    sum += a * b;
+305-  }
+306-
+307-  /*
+308-   * Store exactly the frozen RTL architectural layout:
+309-   *
+310-   *   bits 31:0   = signed INT32 bit pattern
+
+===== 6. NEMU STATE UNCHANGED =====
+NEMU_HEAD=53bcb5686f8fd05248ae98546b7dc04bdca1bbb0
+ M src/isa/riscv64/include/isa-all-instr.h
+ M src/isa/riscv64/instr/decode.c
+ M src/isa/riscv64/instr/rvv/vcompute.h
+DIFF_CHECK_EXIT=0
+
+===== 7. PHASE1/2 FREEZE =====
+P12_TOTAL=46
+P12_OK=46
+P12_FAIL=0
+P12_VERIFY_EXIT=0
+
+===== 8. AUDIT HASH =====

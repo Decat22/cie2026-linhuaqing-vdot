@@ -1,0 +1,20 @@
+CIE2026 Phase3 Step5D VDOT Positive DiffTest Identity
+
+XiangShan_HEAD=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+XiangShan_branch=cie2026-vdot8-official
+VIMacU_active_path=/home/chenjunxi/xs-env/XiangShan/src/main/scala/xiangshan/backend/fu/wrapper/VIMacU.scala
+VIMacU_SHA256=4ceed5042354228a84944ea3adf497e99328070beee925a5693508e93867d0c5
+EMU=/home/chenjunxi/xs-env/XiangShan/build/emu
+EMU_SHA256=0aa1992a1e03cf07b2c28906f9c2cb5f1bca181174aa4f9caf8f0eaeb2dd1ada
+NEMU_SO=/home/chenjunxi/cie2026_phase3_runtime/nemu/riscv64-nemu-interpreter-so
+NEMU_SO_SHA256=60df846989e538fa31ddb96f6c99e58ef522fc5f87235bfcf4e7a668533667f9
+IMAGE=/home/chenjunxi/cie2026_evidence/phase2_official8/images/vdot_official8_positive_PASS.bin
+IMAGE_SHA256=e56d5d67118250c9207731046dba2584878f635676f2df1c0726a2407549717c
+ELF=/home/chenjunxi/cie2026_evidence/phase2_official8/images/vdot_official8_positive_PASS.elf
+ELF_SHA256=6628168178bb5f0ac34e4037bee1246057c1ad867f7e2e0849acbbf42ab7c96c
+
+Custom_instruction=0x0294050b
+Expected_result=+36
+
+Run_command:
+/home/chenjunxi/xs-env/XiangShan/build/emu -b 0 -e 0 -i /home/chenjunxi/cie2026_evidence/phase2_official8/images/vdot_official8_positive_PASS.bin --diff /home/chenjunxi/cie2026_phase3_runtime/nemu/riscv64-nemu-interpreter-so

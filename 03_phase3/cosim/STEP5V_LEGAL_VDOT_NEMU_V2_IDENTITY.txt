@@ -1,0 +1,23 @@
+CIE2026 Phase3 Step5V Final Legal VDOT RTL-NEMU Co-simulation
+
+XiangShan_HEAD=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+EMU=/home/chenjunxi/xs-env/XiangShan/build/emu
+EMU_SHA256=0aa1992a1e03cf07b2c28906f9c2cb5f1bca181174aa4f9caf8f0eaeb2dd1ada
+
+NEMU_V2=/home/chenjunxi/cie2026_phase3_runtime/nemu_mtval0_v2/riscv64-nemu-interpreter-so
+NEMU_V2_SHA256=2fc9bce995eb8b89dded03d40bb0a49a9b2769c64e0f19428b23440b5b851fe2
+
+Positive_image=/home/chenjunxi/cie2026_evidence/phase2_official8/images/vdot_official8_positive_PASS.bin
+Positive_SHA256=e56d5d67118250c9207731046dba2584878f635676f2df1c0726a2407549717c
+Expected_positive=36
+
+Negative_image=/home/chenjunxi/cie2026_evidence/phase2_official8/images/vdot_official8_negative_PASS.bin
+Negative_SHA256=316056c8f56c93b5d5e7b29041afc90d8922a15502ac4e65dea9454c0190d899
+Expected_negative=-36
+
+Boundary_image=/home/chenjunxi/cie2026_evidence/phase2_official8/images/vdot_official8_boundary_PASS.bin
+Boundary_SHA256=c4cc116f25d5e973a5be8bcee0e4c1abacced8357616ceac3de8718bdd8744d7
+Expected_max_positive=131072
+Expected_max_negative=-130048
+Expected_mixed=127
+Expected_upper_half_ignored=127

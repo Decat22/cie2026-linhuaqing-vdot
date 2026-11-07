@@ -1,0 +1,23 @@
+emu compiled at Sep  6 2026, 13:08:07
+Using simulated 32768B flash
+Using simulated 8386560MB RAM
+The image is /mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/cosim/illegal_e16_workload/cie2026-vdot-illegal-e16-riscv64-xs.bin
+The reference model is /home/chenjunxi/cie2026_phase3_runtime/nemu_mtval0_v2/riscv64-nemu-interpreter-so
+The first instruction of core 0 has commited. Difftest enabled. 
+===== CIE2026 Phase3 VDOT Non-E8 Illegal Test =====
+Requested VTYPE: e16, m1, ta, ma
+Expected exception: Illegal Instruction (mcause=2)
+TRAP_RETURN=1
+MCAUSE_AFTER=0x2
+MEPC_AFTER=0x8000014e
+EXPECTED_MEPC=0x8000014e
+MTVAL_AFTER=0x0
+ILLEGAL_TRAP_TAKEN_CHECK=PASS
+ILLEGAL_MCAUSE_CHECK=PASS
+ILLEGAL_MEPC_CHECK=PASS
+VDOT_NON_E8_ILLEGAL_PASS
+Core 0: [32mHIT GOOD TRAP at pc = 0x80000310
+[0m[35mCore-0 instrCnt = 9,681, cycleCnt = 49,634, IPC = 0.195048
+[0m[34mSeed=0 Guest cycle spent: 49,638 (this will be different from cycleCnt if emu loads a snapshot)
+[0m[34mHost time spent: 174,325ms
+[0mSTEP5Q_COSIM_EXIT=0

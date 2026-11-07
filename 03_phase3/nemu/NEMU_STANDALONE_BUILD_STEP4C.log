@@ -1,0 +1,55 @@
+正克隆到 'resource/LibCheckpoint'...
+fatal: 无法访问 'https://github.com/OpenXiangShan/LibCheckpoint.git/'：Failed to connect to github.com port 443 after 21059 ms: Couldn't connect to server
+/bin/sh: 1: cd: can't cd to resource/LibCheckpoint
+正克隆到 'resource/nanopb'...
+fatal: 无法访问 'https://github.com/nanopb/nanopb.git/'：Failed to connect to github.com port 443 after 21023 ms: Couldn't connect to server
++ CXX src/checkpoint/serializer.cpp
++ CXX src/checkpoint/simpoint.cpp
+src/checkpoint/serializer.cpp: In constructor ‘Serializer::Serializer()’:
+src/checkpoint/serializer.cpp:50:21: error: ‘INT_REG_CPT_ADDR’ was not declared in this scope
+   50 |     IntRegStartAddr(INT_REG_CPT_ADDR-BOOT_CODE),
+      |                     ^~~~~~~~~~~~~~~~
+src/checkpoint/serializer.cpp:50:38: error: ‘BOOT_CODE’ was not declared in this scope
+   50 |     IntRegStartAddr(INT_REG_CPT_ADDR-BOOT_CODE),
+      |                                      ^~~~~~~~~
+src/checkpoint/serializer.cpp:51:20: error: ‘INT_REG_DONE’ was not declared in this scope
+   51 |     IntRegDoneFlag(INT_REG_DONE-BOOT_CODE),
+      |                    ^~~~~~~~~~~~
+src/checkpoint/serializer.cpp:52:23: error: ‘FLOAT_REG_CPT_ADDR’ was not declared in this scope
+   52 |     FloatRegStartAddr(FLOAT_REG_CPT_ADDR-BOOT_CODE),
+      |                       ^~~~~~~~~~~~~~~~~~
+src/checkpoint/serializer.cpp:53:22: error: ‘FLOAT_REG_DONE’ was not declared in this scope
+   53 |     FloatRegDoneFlag(FLOAT_REG_DONE-BOOT_CODE),
+      |                      ^~~~~~~~~~~~~~
+src/checkpoint/serializer.cpp:54:18: error: ‘CSR_REG_CPT_ADDR’ was not declared in this scope
+   54 |     CSRStartAddr(CSR_REG_CPT_ADDR-BOOT_CODE),
+      |                  ^~~~~~~~~~~~~~~~
+src/checkpoint/serializer.cpp:55:18: error: ‘CSR_REG_DONE’ was not declared in this scope
+   55 |     CSRSDoneFlag(CSR_REG_DONE-BOOT_CODE),
+      |                  ^~~~~~~~~~~~
+src/checkpoint/serializer.cpp:56:21: error: ‘VECTOR_REG_CPT_ADDR’ was not declared in this scope
+   56 |     VecRegStartAddr(VECTOR_REG_CPT_ADDR-BOOT_CODE),
+      |                     ^~~~~~~~~~~~~~~~~~~
+src/checkpoint/serializer.cpp:57:20: error: ‘VECTOR_REG_DONE’ was not declared in this scope
+   57 |     VecRegDoneFlag(VECTOR_REG_DONE-BOOT_CODE),
+      |                    ^~~~~~~~~~~~~~~
+src/checkpoint/serializer.cpp:58:17: error: ‘BOOT_FLAG_ADDR’ was not declared in this scope
+   58 |     CptFlagAddr(BOOT_FLAG_ADDR-BOOT_CODE),
+      |                 ^~~~~~~~~~~~~~
+src/checkpoint/serializer.cpp:59:12: error: ‘PC_CPT_ADDR’ was not declared in this scope
+   59 |     PCAddr(PC_CPT_ADDR-BOOT_CODE),
+      |            ^~~~~~~~~~~
+src/checkpoint/serializer.cpp:60:14: error: ‘MODE_CPT_ADDR’ was not declared in this scope
+   60 |     MODEAddr(MODE_CPT_ADDR-BOOT_CODE),
+      |              ^~~~~~~~~~~~~
+src/checkpoint/serializer.cpp:61:15: error: ‘MTIME_CPT_ADDR’ was not declared in this scope
+   61 |     MTIMEAddr(MTIME_CPT_ADDR-BOOT_CODE),
+      |               ^~~~~~~~~~~~~~
+src/checkpoint/serializer.cpp:62:18: error: ‘MTIME_CMP_CPT_ADDR’ was not declared in this scope
+   62 |     MTIMECMPAddr(MTIME_CMP_CPT_ADDR-BOOT_CODE),
+      |                  ^~~~~~~~~~~~~~~~~~
+src/checkpoint/serializer.cpp:63:18: error: ‘MISC_DONE_CPT_ADDR’ was not declared in this scope
+   63 |     MISCDoneFlag(MISC_DONE_CPT_ADDR-BOOT_CODE)
+      |                  ^~~~~~~~~~~~~~~~~~
+make: *** [/home/chenjunxi/cie2026_phase3_runtime/nemu-standalone-src/scripts/build.mk:67：/home/chenjunxi/cie2026_phase3_runtime/nemu-standalone-src/build/obj-riscv64-nemu-interpreter/src/checkpoint/serializer.opp] 错误 1
+make: *** 正在等待未完成的任务....

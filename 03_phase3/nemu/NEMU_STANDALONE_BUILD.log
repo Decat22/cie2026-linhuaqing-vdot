@@ -1,0 +1,97 @@
+正克隆到 'resource/LibCheckpoint'...
+fatal: 无法访问 'https://github.com/OpenXiangShan/LibCheckpoint.git/'：Failed to connect to github.com port 443 after 21021 ms: Couldn't connect to server
+/bin/sh: 1: cd: can't cd to resource/LibCheckpoint
+正克隆到 'resource/gcpt_restore'...
+fatal: 无法访问 'https://github.com/OpenXiangShan/LibCheckpointAlpha.git/'：Failed to connect to github.com port 443 after 21017 ms: Couldn't connect to server
+正克隆到 'resource/nanopb'...
+fatal: 无法访问 'https://github.com/nanopb/nanopb.git/'：Failed to connect to github.com port 443 after 21044 ms: Couldn't connect to server
+/home/chenjunxi/cie2026_phase3_runtime/nemu-standalone-src/scripts/config.mk:20: [1;31mWarning: .config does not exists![0m
+/home/chenjunxi/cie2026_phase3_runtime/nemu-standalone-src/scripts/config.mk:21: [1;31mTo build the project, first run 'make menuconfig'.[0m
++ CC confdata.c
++ CC expr.c
++ CC preprocess.c
++ CC symbol.c
++ CC util.c
++ YACC build/parser.tab.h
++ LEX build/lexer.lex.c
++ CC build/lexer.lex.c
++ CC build/parser.tab.c
++ CC conf.c
++ g++ /home/chenjunxi/cie2026_phase3_runtime/nemu-standalone-src/tools/kconfig/build/conf
++ CC fixdep.c
++ g++ /home/chenjunxi/cie2026_phase3_runtime/nemu-standalone-src/tools/fixdep/build/fixdep
+正克隆到 'resource/LibCheckpoint'...
+fatal: 无法访问 'https://github.com/OpenXiangShan/LibCheckpoint.git/'：Recv failure: 连接被对方重置
+/bin/sh: 1: cd: can't cd to resource/LibCheckpoint
+正克隆到 'resource/gcpt_restore'...
+fatal: 无法访问 'https://github.com/OpenXiangShan/LibCheckpointAlpha.git/'：Failed to connect to github.com port 443 after 21026 ms: Couldn't connect to server
+正克隆到 'resource/nanopb'...
+fatal: 无法访问 'https://github.com/nanopb/nanopb.git/'：Failed to connect to github.com port 443 after 21032 ms: Couldn't connect to server
++ CC src/nemu-main.c
++ CC src/device/device.c
++ CC src/device/alarm.c
++ CC src/device/intr.c
++ CC src/device/uartlite.c
++ CC src/device/plic.c
++ CC src/device/keyboard.c
++ CC src/device/vga.c
++ CC src/device/sdcard.c
++ CC src/cpu/difftest/dut.c
++ CC src/cpu/difftest/ref.c
++ CC src/cpu/tcache.c
++ CC src/cpu/cpu-exec.c
++ CC src/monitor/image_loader.c
++ CC src/monitor/ui.c
++ CC src/monitor/aligncheck.c
++ CC src/monitor/monitor.c
++ CC src/monitor/watchpoint.c
++ CC src/utils/dynamic-config.c
++ CC src/utils/expr.c
++ CC src/utils/state.c
++ CC src/utils/log.c
++ CC src/utils/br_log.c
++ CC src/utils/iqueue.c
++ CC src/utils/timer.c
++ CC src/utils/filename.c
++ CC src/memory/paddr.c
++ CC src/memory/host-tlb.c
++ CC src/memory/vaddr.c
++ CC src/isa/riscv64/difftest/dut.c
++ CC src/isa/riscv64/difftest/ref.c
++ CC src/isa/riscv64/instr/fp.c
++ CC src/isa/riscv64/instr/rva/amo.c
++ CC src/isa/riscv64/instr/rvv/vcommon.c
++ CC src/isa/riscv64/instr/rvv/vcompute_impl.c
++ CC src/isa/riscv64/instr/rvv/vreg_impl.c
++ CC src/isa/riscv64/instr/rvv/vldst_impl.c
++ CC src/isa/riscv64/instr/priv/system.c
++ CC src/isa/riscv64/instr/rvk/aes_common.c
++ CC src/isa/riscv64/instr/vp.c
++ CC src/isa/riscv64/instr/rvcbo/cbo_impl.c
++ CC src/isa/riscv64/instr/decode.c
++ CC src/isa/riscv64/clint.c
++ CC src/isa/riscv64/reg.c
++ CC src/isa/riscv64/init.c
++ CC src/isa/riscv64/logo.c
++ CC src/isa/riscv64/system/trigger.c
++ CC src/isa/riscv64/system/mmu.c
++ CC src/isa/riscv64/system/intr.c
++ CC src/isa/riscv64/system/timer.c
++ CC src/isa/riscv64/system/priv.c
++ CC src/isa/riscv64/system/aia.c
++ CC src/engine/interpreter/fp.c
++ CC src/engine/interpreter/init.c
++ CC src/engine/interpreter/hostcall.c
++ CC src/device/io/map.c
++ CC src/device/io/mmio.c
++ CC src/device/io/port-io.c
++ CC src/profiling/profiling_control.c
++ CC src/checkpoint/cpt_env.c
++ CXX src/checkpoint/path_manager.cpp
++ CXX src/checkpoint/serializer.cpp
+src/checkpoint/serializer.cpp:38:10: fatal error: gcpt_restore/src/restore_rom_addr.h: 没有那个文件或目录
+   38 | #include <gcpt_restore/src/restore_rom_addr.h>
+      |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make: *** [/home/chenjunxi/cie2026_phase3_runtime/nemu-standalone-src/scripts/build.mk:67：/home/chenjunxi/cie2026_phase3_runtime/nemu-standalone-src/build/obj-riscv64-nemu-interpreter/src/checkpoint/serializer.opp] 错误 1
+make: *** 正在等待未完成的任务....

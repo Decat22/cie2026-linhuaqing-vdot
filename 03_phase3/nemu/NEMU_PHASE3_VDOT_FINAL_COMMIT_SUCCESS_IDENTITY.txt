@@ -1,0 +1,16 @@
+CIE2026 Phase3 Final NEMU VDOT Commit - SUCCESS
+
+Branch=cie2026-phase3-vdot
+Baseline=53bcb5686f8fd05248ae98546b7dc04bdca1bbb0
+Final_commit=55c09a3669d52ae6f6a809bab6e594939b82e512
+
+Commit_subject=cie2026: add custom vdot.vv reference model
+Commit_author=chenjunxi <chenjunxi@local.invalid>
+
+Validated_runtime=/home/chenjunxi/cie2026_phase3_runtime/nemu_mtval0_v2/riscv64-nemu-interpreter-so
+Validated_runtime_SHA256=2fc9bce995eb8b89dded03d40bb0a49a9b2769c64e0f19428b23440b5b851fe2
+
+Committed_files:
+src/isa/riscv64/include/isa-all-instr.h
+src/isa/riscv64/instr/decode.c
+src/isa/riscv64/instr/rvv/vcompute.h

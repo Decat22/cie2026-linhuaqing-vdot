@@ -1,0 +1,60 @@
+CIE2026 Phase3.3 Formal VDOT Performance Benchmark
+
+XiangShan_HEAD=86d7b4b98d0235b4a009dfd15b032bd558df33dc
+NEMU_HEAD=55c09a3669d52ae6f6a809bab6e594939b82e512
+
+Measurement_mode=RTL --no-diff
+Functional_correctness_evidence=Step5V custom + Step6G baseline DiffTest
+
+Warmup_operations_per_path=16
+Measured_operations_per_sample=256
+Number_of_samples=5
+
+Measured_block_control_flow=fully statically unrolled
+Loop_branch_inside_measurement=NO
+Printf_inside_measurement=NO
+
+Input_elements_used=8 signed INT8
+Expected_result=127
+
+Custom_compute:
+sources loaded before counter start
+vtype=e8,m1,VL=8
+256 x custom vdot.vv
+
+Baseline_compute:
+sources loaded before counter start
+initial vtype=e8,mf2,VL=8
+each operation:
+  vwmul.vv
+  vsetivli e16,m1
+  zero seed
+  vwredsum.vs
+  restore e8,mf2
+
+Custom_end_to_end_per_operation:
+vsetivli e8,m1 VL=8
+vle8.v x2
+custom vdot.vv
+vsetivli e32,m1 VL=1
+vse32.v
+
+Baseline_end_to_end_per_operation:
+vsetivli e8,mf2 VL=8
+vle8.v x2
+vwmul.vv
+vsetivli e16,m1
+zero seed
+vwredsum.vs
+vsetivli e32,m1 VL=1
+vse32.v
+
+Source_main_SHA256=b33576bc54ca5f22f7e523b1159c94454729beea458468093257f584977cb3c4
+Source_benchmark_S_SHA256=e5c6a8af1627f81c8f0733710e80a3b27534bda10d78ecfb5c6d7b93810c16e7
+Makefile_SHA256=d87451821970287bd4edb13cf574ceea50d41283927a2e8511773eef9431a584
+
+ELF_SHA256=fd8cfd653292c5f1fcaee2c7ce01f96146293fb8fe58ac05ca3e732e8dbdf6f8
+BIN_SHA256=1876e1b03d247429086c09deac62d9cd5e387898cf442a1897f26efc3f42d0fe
+
+Step7A_SHA256=ecfffe0e81a7274e93a260a1e6a86f95bfb5c8cae500820b36c7977db71ac538
+Step7B_runtime_SHA256=445b45012075b1ad5de351196be0dcf5fc7017046e1738b794a1d86f0bc0e87e

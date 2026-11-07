@@ -1,0 +1,30 @@
+Phase 1 Hello 运行摘要
+==========================
+
+测试项目：
+  XiangShan Hello workload 环境与 DiffTest 验证
+
+验证方式：
+  XiangShan RTL simulator + NEMU DiffTest
+
+结果：
+  PASS
+
+关键运行输出：
+  The image is /home/chenjunxi/cie2026_workspace/phase1/hello/build/cie2026-hello-riscv64-xs.bin
+  The reference model is ./ready-to-run/riscv64-nemu-interpreter-so
+  The first instruction of core 0 has commited. Difftest enabled. 
+  hello xiangshan, I am 林淮青, IP address: 192.168.74.128
+  Core 0: [32mHIT GOOD TRAP at pc = 0x8000014c
+
+结论：
+  Hello workload 已在 XiangShan 仿真环境中成功运行。
+  日志显示 NEMU reference model 已启用，DiffTest 正常开启，
+  程序输出 Hello 信息并最终命中 HIT GOOD TRAP。
+
+原始证据：
+  logs/hello_difftest_SUCCESS.log
+
+说明：
+  本文件仅为原始运行日志的中文摘要。
+  具体终端输出以原始日志为准。

@@ -1,0 +1,237 @@
+===== PHASE3 STEP7E: FINAL PERFORMANCE INTERPRETATION =====
+===== 1. LOCK STEP7D FORMAL EVIDENCE =====
+STEP7D_ID_SHA256=e2d3c6f869574246fbdf3b3ab7c8d6c0ef3c012cfcd7d8b9f9c5309059d31e2d
+STEP7D_LOG_SHA256=c5780066a1d7a69dd6dd2988fd2611c2a85fdf3e2eb84b7c30862aa7f27b4f2d
+STEP7D_SUMMARY_SHA256=084f49af9e0f8cf1daa6833b7e608d5208eb83f35dc7efe773af8c3a586f27d5
+STEP7D_CSV_SHA256=ad9faa5d3d8046c10d7a73c4dee0cfce4c8336b2eab546cf4078903ba24922d4
+STEP7C_OBJD_SHA256=7d454158c027b628914e662c894c85573c0aede52f264049b3b757500e77af7d
+PROTOCOL_SHA256=1c1280703cf86bd9ee4e4b23be9c52dab19d57ea078667658c1d76b0848cb33b
+STEP7D_ID_LOCK=PASS
+STEP7D_LOG_LOCK=PASS
+STEP7D_SUMMARY_LOCK=PASS
+STEP7D_CSV_LOCK=PASS
+STEP7C_OBJD_LOCK=PASS
+PROTOCOL_LOCK=PASS
+===== 2. VERIFY FINAL PASS MARKERS =====
+STEP7D_FINAL_PASS_GATE=FAIL
+PERF_PARSE_GATE=PASS
+===== 3. VERIFY EXACT FINAL PERFORMANCE VALUES =====
+VALUE_GATE=PASS CUSTOM_COMPUTE_CYCLES_MEDIAN=269
+VALUE_GATE=PASS BASELINE_COMPUTE_CYCLES_MEDIAN=1283
+VALUE_GATE=PASS CUSTOM_E2E_CYCLES_MEDIAN=1776
+VALUE_GATE=PASS BASELINE_E2E_CYCLES_MEDIAN=2545
+VALUE_GATE=PASS CUSTOM_COMPUTE_CYCLES_PER_OP_MEDIAN=1.050781
+VALUE_GATE=PASS BASELINE_COMPUTE_CYCLES_PER_OP_MEDIAN=5.011719
+VALUE_GATE=PASS CUSTOM_E2E_CYCLES_PER_OP_MEDIAN=6.937500
+VALUE_GATE=PASS BASELINE_E2E_CYCLES_PER_OP_MEDIAN=9.941406
+VALUE_GATE=PASS COMPUTE_SPEEDUP_MEDIAN=4.769517
+VALUE_GATE=PASS E2E_SPEEDUP_MEDIAN=1.432995
+VALUE_GATE=PASS STATIC_COMPUTE_INSTRUCTION_RATIO=5.000000
+VALUE_GATE=PASS STATIC_E2E_INSTRUCTION_RATIO=1.500000
+===== 4. VERIFY SAMPLE STABILITY =====
+CUSTOM_COMPUTE_UNIQUE_CYCLES=268 269 
+BASELINE_COMPUTE_UNIQUE_CYCLES=1283 
+CUSTOM_E2E_UNIQUE_CYCLES=1776 
+BASELINE_E2E_UNIQUE_CYCLES=2545 
+SAMPLE_STABILITY_GATE=FAIL
+===== 5. WRITE FINAL PERFORMANCE INTERPRETATION =====
+CIE2026 Phase3.3 VDOT Final Performance Interpretation
+
+1. Measurement status
+---------------------
+The formal performance benchmark passed.
+
+Measurement mode:
+  XiangShan RTL simulation, --no-diff
+
+Functional correctness is not inferred from the performance run alone.
+It was independently established earlier by:
+  - custom vdot.vv RTL <-> NEMU DiffTest
+  - mathematically equivalent RVV baseline RTL <-> NEMU DiffTest
+
+Primary performance counter:
+  rdcycle
+
+Samples:
+  5
+
+Operations per measured sample:
+  256
+
+Warm-up operations per path:
+  16
+
+The measured regions are statically unrolled.
+There are no loop branches or printf operations inside the measured regions.
+
+
+2. Compute-only result
+----------------------
+Custom vdot.vv:
+  median cycles / 256 operations = 269
+  median cycles per operation    = 1.050781
+
+Standard RVV baseline:
+  median cycles / 256 operations = 1283
+  median cycles per operation    = 5.011719
+
+Measured steady-state compute speedup:
+
+  baseline_cycles / custom_cycles
+  = 4.769517x
+
+Static compute instruction count:
+  custom   = 1 instruction / dot product
+  baseline = 5 instructions / dot product
+
+Static compute instruction-count ratio:
+  5.000000x
+
+
+3. End-to-end kernel result
+---------------------------
+The end-to-end measured region includes:
+  vector configuration
+  two source loads
+  computation
+  result store
+
+Custom vdot.vv:
+  median cycles / 256 operations = 1776
+  median cycles per operation    = 6.937500
+
+Standard RVV baseline:
+  median cycles / 256 operations = 2545
+  median cycles per operation    = 9.941406
+
+Measured end-to-end speedup:
+
+  baseline_cycles / custom_cycles
+  = 1.432995x
+
+Static end-to-end instruction count:
+  custom   = 6 instructions / dot product
+  baseline = 9 instructions / dot product
+
+Static end-to-end instruction-count ratio:
+  1.500000x
+
+
+4. Sample stability
+-------------------
+Custom compute samples:
+  268 or 269 cycles
+
+Baseline compute samples:
+  1283 cycles for all five samples
+
+Custom end-to-end samples:
+  1776 cycles for all five samples
+
+Baseline end-to-end samples:
+  2545 cycles for all five samples
+
+There is no visible first-sample cold-start outlier in the formal
+five-sample results.
+
+
+5. Correct interpretation of latency and throughput
+----------------------------------------------------
+The 4.769517x value is a measured steady-state compute-cycle /
+throughput speedup from a 256-operation statically unrolled stream.
+
+It must NOT be described as:
+  "single-instruction latency speedup = 4.769517x"
+
+Single-operation / functional-unit latency is a separate RTL design
+property and should be reported from the RTL design and waveform
+evidence.
+
+Therefore the final report should distinguish:
+
+  RTL/FU latency evidence
+  versus
+  measured steady-state throughput
+  versus
+  measured end-to-end kernel cycles
+
+
+6. Counter-boundary interpretation
+----------------------------------
+The rdcycle measurement uses the same counter-boundary structure for
+the custom and baseline kernels.
+
+Fixed measurement-boundary overhead is retained in the raw results.
+No unmeasured overhead subtraction is performed.
+
+Because 256 operations are measured per sample, fixed boundary overhead
+is amortized across the measured stream.
+
+The reported speedups therefore use the directly observed raw median
+cycle counts.
+
+
+7. rdinstret interpretation
+----------------------------
+rdinstret is retained as supplementary CSR evidence.
+
+Exact instruction counts for the benchmark are taken from the frozen
+Step7C objdump, not inferred from rdinstret values.
+
+
+8. Values to use in the competition report
+-------------------------------------------
+Primary compute-only measured speedup:
+  4.769517x
+
+Primary end-to-end measured speedup:
+  1.432995x
+
+Custom compute cycles/op:
+  1.050781
+
+RVV baseline compute cycles/op:
+  5.011719
+
+Custom end-to-end cycles/op:
+  6.937500
+
+RVV baseline end-to-end cycles/op:
+  9.941406
+
+Static compute instruction-count ratio:
+  5.000000x
+
+Static end-to-end instruction-count ratio:
+  1.500000x
+
+
+9. Values NOT to use as hardware speedup
+----------------------------------------
+Do not use:
+  whole-program Core-0 cycleCnt
+  Guest cycle spent
+  Host time spent
+
+Those include startup, printf, control-flow, trap, and simulator
+overheads outside the controlled benchmark region.
+===== 6. REPORT CONSISTENCY GATES =====
+REPORT_VALUE_GATE=PASS 4.769517x
+REPORT_VALUE_GATE=PASS 1.432995x
+REPORT_VALUE_GATE=PASS 1.050781
+REPORT_VALUE_GATE=PASS 5.011719
+REPORT_VALUE_GATE=PASS 6.937500
+REPORT_VALUE_GATE=PASS 9.941406
+REPORT_VALUE_GATE=PASS 5.000000x
+REPORT_VALUE_GATE=PASS 1.500000x
+LATENCY_THROUGHPUT_DISTINCTION_GATE=PASS
+FINAL_REPORT_CONTENT_GATE=PASS
+===== 7. PHASE1/2 FREEZE =====
+P12_TOTAL=46
+P12_OK=46
+P12_FAIL=0
+P12_VERIFY_EXIT=0
+===== 8. FINAL PHASE3.3 VERDICT =====
+STEP7E_PERFORMANCE_INTERPRETATION_READY=0
+PHASE3_3_PERFORMANCE_ANALYSIS_FAIL
+FINAL_EVIDENCE_HASHES:

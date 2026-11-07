@@ -1,0 +1,44 @@
+CIE2026 XiangShan Kunminghu V2
+Official 8-Term VDOT Waveform Location
+
+Target instruction:
+PC    = 0x00000000800001ac
+INSTR = 0x0294050b
+FUOP  = 0x0e0
+
+Instruction-location waveform:
+23778 ps:
+  TOP.SimTop.l_soc.core_with_l2.core.backend.inner_ctrlBlock.rob.difftest_module_3
+  io_bits_pc    = 0x00000000800001ac
+  io_bits_instr = 0x0294050b
+
+VIMAC execution input:
+23844 ps:
+  Vimac io_in_valid = 1
+  fuOpType = 0x0e0
+  src0 = 0x80808080808080808080808080808080
+  src1 = 0x80808080808080808080808080808080
+
+Internal result:
+23846 ps:
+  vdotResult_r =
+  0x00000000000000000000000000020000
+
+VIMAC execution output:
+23848 ps:
+  Vimac io_out_valid = 1
+  vdotResult =
+  0x00000000000000000000000000020000
+  io_out_bits_res_data =
+  0x00000000000000000000000000020000
+
+Arithmetic:
+  8 * (-128 * -128)
+  = 131072
+  = 0x00020000
+
+FST:
+  vdot_official8_10000_12000.fst
+
+FST SHA256:
+  055aa62e77ae8070312fa4b4575e41249bcf3109c14127c19d88f498f346eeb1

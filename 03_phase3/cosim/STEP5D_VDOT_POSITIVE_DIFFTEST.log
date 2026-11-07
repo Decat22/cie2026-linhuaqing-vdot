@@ -1,0 +1,15 @@
+emu compiled at Sep  6 2026, 13:08:07
+Using simulated 32768B flash
+Using simulated 8386560MB RAM
+The image is /home/chenjunxi/cie2026_evidence/phase2_official8/images/vdot_official8_positive_PASS.bin
+The reference model is /home/chenjunxi/cie2026_phase3_runtime/nemu/riscv64-nemu-interpreter-so
+The first instruction of core 0 has commited. Difftest enabled. 
+===== CIE2026 XiangShan Official VDOT Positive Test =====
+Expected low-8 dot = 36
+VDOT result = [36, 0, 0, 0]
+VDOT_POSITIVE_PASS
+Core 0: [32mHIT GOOD TRAP at pc = 0x800001e6
+[0m[35mCore-0 instrCnt = 4,056, cycleCnt = 21,778, IPC = 0.186243
+[0m[34mSeed=0 Guest cycle spent: 21,782 (this will be different from cycleCnt if emu loads a snapshot)
+[0m[34mHost time spent: 77,115ms
+[0mCOSIM_POSITIVE_EXIT=0

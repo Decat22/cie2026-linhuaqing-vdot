@@ -1,0 +1,23 @@
+CIE2026 Phase3 NEMU mtval=0 Candidate V2
+
+NEMU_HEAD=53bcb5686f8fd05248ae98546b7dc04bdca1bbb0
+NEMU_BRANCH=cie2026-phase3-vdot
+
+Candidate_V1_SHA256=fe20d74516c0dce6ecd5727e330c81a409e00c2ac0242fcadd2d5fb079b39e2a
+
+Candidate_V2_SO=/home/chenjunxi/xs-env/NEMU/build/riscv64-nemu-interpreter-so
+Candidate_V2_SHA256=2fc9bce995eb8b89dded03d40bb0a49a9b2769c64e0f19428b23440b5b851fe2
+
+Localized_change:
+cie2026_vdot_vv non-e8 path only
+s->isa.instr.val = 0 before longjmp_exception(EX_II)
+
+Reason:
+cpu-exec.c restores cpu.instr from prev_s->isa.instr.val after longjmp
+intr.c then writes EX_II mtval from cpu.instr
+
+Old_Runtime_SO=/home/chenjunxi/cie2026_phase3_runtime/nemu/riscv64-nemu-interpreter-so
+Old_Runtime_SO_SHA256=60df846989e538fa31ddb96f6c99e58ef522fc5f87235bfcf4e7a668533667f9
+
+Patch=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/nemu/NEMU_PHASE3_VDOT_MTVAL0_CANDIDATE_V2.patch
+Patch_SHA256=d7b222c92ac2d9fa78c4f41a35452e77a4d2d4a52c83e16bd6069e06fd3d9472

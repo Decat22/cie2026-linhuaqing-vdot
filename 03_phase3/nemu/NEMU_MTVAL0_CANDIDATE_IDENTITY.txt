@@ -1,0 +1,23 @@
+CIE2026 Phase3 NEMU mtval=0 Candidate
+
+NEMU_HEAD=53bcb5686f8fd05248ae98546b7dc04bdca1bbb0
+NEMU_BRANCH=cie2026-phase3-vdot
+
+Reason:
+Frozen XiangShan custom VDOT non-e8 exception:
+mcause=2
+mepc=faulting VDOT PC
+mtval=0
+
+Localized candidate change:
+For cie2026_vdot_vv only, when vsew != e8:
+cpu.instr=0 before longjmp_exception(EX_II)
+
+OLD_RUNTIME_SO=/home/chenjunxi/cie2026_phase3_runtime/nemu/riscv64-nemu-interpreter-so
+OLD_RUNTIME_SO_SHA256=60df846989e538fa31ddb96f6c99e58ef522fc5f87235bfcf4e7a668533667f9
+
+CANDIDATE_SO=/home/chenjunxi/xs-env/NEMU/build/riscv64-nemu-interpreter-so
+CANDIDATE_SO_SHA256=fe20d74516c0dce6ecd5727e330c81a409e00c2ac0242fcadd2d5fb079b39e2a
+
+PATCH=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/nemu/NEMU_PHASE3_VDOT_MTVAL0_CANDIDATE.patch
+PATCH_SHA256=69a29367c7cc9db098fb163428c614e12db847fb54cb5a04e6e7f834aa30f4af

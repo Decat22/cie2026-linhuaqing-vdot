@@ -1,0 +1,27 @@
+CIE2026 Phase3.3 Canonical Final Performance Status
+
+Step7D_RTL_rerun_required=NO
+Step7E_failure_classification=AUDIT_FALSE_NEGATIVE
+
+Primary_compute_throughput_speedup=4.769517x
+Primary_end_to_end_speedup=1.432995x
+
+Custom_compute_cycles_per_op=1.050781
+Baseline_compute_cycles_per_op=5.011719
+
+Custom_end_to_end_cycles_per_op=6.937500
+Baseline_end_to_end_cycles_per_op=9.941406
+
+Static_compute_instruction_ratio=5.000000x
+Static_end_to_end_instruction_ratio=1.500000x
+
+Important_interpretation:
+4.769517x is steady-state compute throughput/cycle speedup.
+It is NOT single-instruction latency speedup.
+
+Formal_interpretation_report=/mnt/hgfs/DCIE2026_SHARE/CIE2026_FINAL_SUBMISSION/03_phase3/perf/STEP7E_PHASE3_PERFORMANCE_FINAL_INTERPRETATION.txt
+Formal_interpretation_report_SHA256=5bb19ec7a9d63e1a4fa5b60f70e8573399ed3adf08c0be48dc10112a5761c0d6
+
+Step7D_log_SHA256=c5780066a1d7a69dd6dd2988fd2611c2a85fdf3e2eb84b7c30862aa7f27b4f2d
+Step7D_summary_SHA256=084f49af9e0f8cf1daa6833b7e608d5208eb83f35dc7efe773af8c3a586f27d5
+Step7D_csv_SHA256=ad9faa5d3d8046c10d7a73c4dee0cfce4c8336b2eab546cf4078903ba24922d4

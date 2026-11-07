@@ -1,0 +1,67 @@
+CIE2026 Phase3.3 VDOT Performance Measurement Protocol
+
+Purpose
+-------
+Compare the custom vdot.vv implementation against the mathematically
+equivalent standard-RVV baseline under the same XiangShan simulator.
+
+Do NOT use whole-program cycleCnt values from Step5V and Step6G as the
+speedup metric because those workloads contain different test counts,
+printing, control flow, and startup/exit overhead.
+
+Metrics
+-------
+1. Static kernel instruction count
+2. Dynamic retired-instruction count using rdinstret
+3. Compute-only cycle count using rdcycle
+4. End-to-end kernel cycle count using rdcycle
+
+Fairness rules
+--------------
+- Same XiangShan emu binary
+- Same NEMU reference SO
+- Same input data
+- Same iteration count
+- Same warm-up count
+- No printf inside measured regions
+- Vector state enabled before measurement
+- Counter reads outside measured kernel body
+- Report custom and RVV baseline separately
+- Keep raw measurements as evidence
+
+Compute-only definition
+-----------------------
+Custom:
+  source vector registers already loaded
+  vtype already configured for e8
+  measured operation is custom vdot.vv
+
+Standard RVV baseline:
+  source vector registers already loaded
+  measured operation includes the mathematically required
+  widening multiply and widening reduction sequence:
+    vwmul.vv
+    vsetivli e16,m1
+    zero reduction seed
+    vwredsum.vs
+
+End-to-end kernel definition
+----------------------------
+Include vector configuration, two source loads, computation, and result
+store for each implementation. Exclude printf and test-result checking.
+
+Planned sampling
+----------------
+Warm-up iterations: 16
+Measured iterations per sample: 256
+Samples inside one simulator execution: 5
+
+Primary reported speedup
+------------------------
+speedup = baseline_cycles / custom_vdot_cycles
+
+Report both:
+- compute-only speedup
+- end-to-end kernel speedup
+
+Do not describe whole-program host simulation time as hardware speedup.

@@ -1,0 +1,17 @@
+CIE2026 Phase3 Final Legal VDOT NEMU V2 Summary
+
+Positive_36_exit=0
+Negative_minus36_exit=0
+Boundary_exit=0
+
+Expected legal semantic matrix:
++36
+-36
++131072
+-130048
+mixed=127
+upper-half-ignored=127
+
+REAL_FAIL_MARKER_COUNT=0
+PRECHECK_READY=1
+COSIM_RESULT=1
