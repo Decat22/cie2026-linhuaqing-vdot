@@ -8,8 +8,10 @@
 - Phase 1：已完成并封存
 - Phase 2：已完成并封存
 - Phase 3 技术部分：已完成并封存
-- 正式报告 / 讲解视频 / PPT：由队友整理中
-- GitHub / submission.asc / 官方 PR：最终提交阶段再进行
+- 正式报告：`docs/` 已收录完整设计文档 PDF 与扩展性分析
+- 讲解视频：`demo/` 已收录阶段一操作录屏（分两段）、阶段二讲解、阶段三分析
+- GitHub 作品仓库：https://github.com/Decat22/cie2026-linhuaqing-vdot
+- 官方提交：已生成 submission.asc 并提交 PR #164
 
 ## Phase 1：环境部署与验证
 
@@ -81,8 +83,8 @@ VDOT 功能单元 RTL latency 为 2 cycles；该 latency 与上述 benchmark thr
     02_phase2/          Phase 2 最终技术证据
     03_phase3/          Phase 3 技术证据（已完成并封存）
     source/             最终源码材料
-    docs/               正式报告与说明文档（最终整理中）
-    demo/               演示视频与展示材料（最终整理中）
+    docs/               正式报告与说明文档
+    demo/               演示视频与展示材料
     github_submission/  官方 GitHub 提交辅助材料（最后阶段处理）
 
 ## 证据与提交说明

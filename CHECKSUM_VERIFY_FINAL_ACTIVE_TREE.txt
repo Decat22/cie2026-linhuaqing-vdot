@@ -16,7 +16,7 @@
 ./02_phase2/Phase2_VDOT_Design_and_Verification.txt: OK
 ./02_phase2/README_PHASE2.txt: OK
 ./02_phase2/REPRODUCE_PHASE2.md: OK
-./02_phase2/SHA256SUMS_PHASE2_FINAL.txt: OK
+./02_phase2/SHA256SUMS_PHASE2_FINAL.txt: FAILED
 ./02_phase2/SHA256_VERIFY_PHASE2_FINAL.txt: OK
 ./02_phase2/SHA256_VERIFY_PHASE2_FINAL_SHARE.txt: OK
 ./02_phase2/objdump/vdot_official8_objdump.txt: OK
@@ -51,7 +51,7 @@
 ./CHECKSUM_VERIFY_PHASE1_PHASE2.txt: OK
 ./README.md: OK
 ./README_FINAL_SUBMISSION_CHECKLIST.txt: OK
-./demo/phase1_operation_recording.mp4: OK
+./demo/phase1_operation_recording.mp4: MISSING
 ./docs/.gitkeep: OK
 ./github_submission/.gitkeep: OK
 ./source/workload_vdot/Makefile: OK

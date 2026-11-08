@@ -15,7 +15,7 @@
 ./02_phase2/Phase2_VDOT_Design_and_Verification.txt: OK
 ./02_phase2/README_PHASE2.txt: OK
 ./02_phase2/REPRODUCE_PHASE2.md: OK
-./02_phase2/SHA256SUMS_PHASE2_FINAL.txt: OK
+./02_phase2/SHA256SUMS_PHASE2_FINAL.txt: FAILED
 ./02_phase2/SHA256_VERIFY_PHASE2_FINAL.txt: OK
 ./02_phase2/SHA256_VERIFY_PHASE2_FINAL_SHARE.txt: OK
 ./02_phase2/objdump/vdot_official8_objdump.txt: OK

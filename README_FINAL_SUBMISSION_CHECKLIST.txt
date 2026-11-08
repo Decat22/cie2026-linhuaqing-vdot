@@ -39,18 +39,18 @@ Phase 1、Phase 2、Phase 3 技术实验均已完成。
 二、正式提交前仍需完成
 ============================================================
 
-[ ] 队友完成最终项目报告 / 说明文档
-[ ] 队友完成需要的 Phase 2 / Phase 3 讲解视频或 PPT
-[ ] 将最终通过审核的文档放入 docs/
-[ ] 将最终通过审核的演示材料放入 demo/
-[ ] 对正式提交目录做最终全包审计
-[ ] 建立并确认作品 GitHub 公有仓库
-[ ] 推送最终公开作品仓库
-[ ] Fork OpenXiangShan/XiangShanLab
-[ ] 按最终官方指南准备 my_submission.txt
-[ ] 生成 submission.asc
-[ ] 推送 submission.asc 至自己的 XiangShanLab Fork
-[ ] 向 OpenXiangShan/XiangShanLab 创建最终 PR
+[OK] 队友完成最终项目报告 / 说明文档
+[OK] 队友完成需要的 Phase 2 / Phase 3 讲解视频或 PPT
+[OK] 将最终通过审核的文档放入 docs/
+[OK] 将最终通过审核的演示材料放入 demo/
+[OK] 对正式提交目录做最终全包审计
+[OK] 建立并确认作品 GitHub 公有仓库
+[OK] 推送最终公开作品仓库
+[OK] Fork OpenXiangShan/XiangShanLab
+[OK] 按最终官方指南准备 my_submission.txt
+[OK] 生成 submission.asc
+[OK] 推送 submission.asc 至自己的 XiangShanLab Fork
+[OK] 向 OpenXiangShan/XiangShanLab 创建最终 PR
 
 注意：正式提交当天再次核对官方 SUBMISSION_GUIDE。
 
