@@ -302,7 +302,7 @@ gtkwave vadd_15000_17000.fst
 | 类别 | 文件 |
 |---|---|
 | 环境信息 | `environment/environment_info.txt` |
-| 构建日志（11 份） | `logs/01_baseline_make_verilog*.log`、`logs/03_baseline_make_emu*.log`、`logs/04_cie2026_hello_build*.log`、`logs/05_cie2026_vadd_build*.log`、`logs/06_make_emu_fst.log` |
+| 构建日志（14 份） | `logs/01_baseline_make_verilog*.log`（5 份）、`logs/02_baseline_*.log`（2 份）、`logs/03_baseline_make_emu*.log`（2 份）、`logs/04_cie2026_hello_build*.log`（2 份）、`logs/05_cie2026_vadd_build*.log`（2 份）、`logs/06_make_emu_fst.log` |
 | 运行时日志（9 份） | `runtime/01_coremark_difftest.log`、`runtime/02_cie2026_hello_difftest*.log`、`runtime/03_cie2026_vadd_*.log`、`runtime/05_vadd_commit_trace.log`、`runtime/06_vadd_wave_capture.log` |
 | 反汇编与提交证据 | `vadd_objdump.txt`、`vadd_instruction_evidence.txt`、`vadd_commit_evidence.txt` |
 | 波形 | `wave/vadd_15000_17000.fst`（SHA256 见同名 `.sha256`）、`wave/vadd_pc_hits.txt`、`wave/vadd_instr_hits.txt` |
