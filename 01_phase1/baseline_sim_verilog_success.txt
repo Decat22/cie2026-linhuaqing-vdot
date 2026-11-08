@@ -1,0 +1,20 @@
+===== CIE2026 KunminghuV2 Baseline SimTop Success =====
+2026年 09月 04日 星期五 20:10:48 CST
+
+XiangShan commit:
+16ae9ddcda54fc9a2fddffad73174cf793ac7814
+
+Git status:
+
+SimTop:
+-rw-rw-r-- 1 chenjunxi chenjunxi 1.1M  9月  4 19:50 build/rtl/SimTop.sv
+
+SimTop SHA256:
+48b7a818e787dfc5b22985184b0fb45705c48e6a84b427bbbe51141f0b4f3dba  build/rtl/SimTop.sv
+
+RTL total:
+2.9G	build/rtl
+
+Disk:
+文件系统        大小  已用  可用 已用% 挂载点
+/dev/sda2       118G   37G   77G   33% /

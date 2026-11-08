@@ -1,0 +1,26 @@
+-e 
+[mill] Generating Verilog files...
+Fri, 04 Sep 2026 19:41:20 +0800
+	Command being timed: "mill -i -Djvm-xmx=10g -Djvm-xss=256m xiangshan.test.runMain top.SimTop --target-dir build/rtl --config KunminghuV2Config --issue E.b --firtool-opt --repl-seq-mem --repl-seq-mem-file=SimTop.sv.conf --num-cores 1 --dump-fir --target systemverilog --split-verilog --firtool-opt -O=release --disable-annotation-unknown --lowering-options=explicitBitcast,disallowLocalVariables,disallowPortDeclSharing,locationInfoStyle=none --enable-difftest --full-stacktrace"
+	User time (seconds): 1277.08
+	System time (seconds): 86.61
+	Percent of CPU this job got: 251%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 9:02.50
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 11520268
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 136151
+	Minor (reclaiming a frame) page faults: 7309220
+	Voluntary context switches: 2476809
+	Involuntary context switches: 218305
+	Swaps: 0
+	File system inputs: 5366832
+	File system outputs: 3421888
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

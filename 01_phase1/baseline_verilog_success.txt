@@ -1,0 +1,26 @@
+===== CIE2026 KunminghuV2 Baseline Verilog Success =====
+2026年 09月 04日 星期五 19:40:13 CST
+
+XiangShan commit:
+16ae9ddcda54fc9a2fddffad73174cf793ac7814
+
+Git status:
+
+XSTop:
+-rw-rw-r-- 1 chenjunxi chenjunxi 131K  9月  4 19:37 build/rtl/XSTop.sv
+
+RTL total:
+1.4G	build/rtl
+
+Memory:
+               total        used        free      shared  buff/cache   available
+内存：          15Gi       1.6Gi        11Gi        59Mi       2.8Gi        13Gi
+交换：          19Gi       265Mi        19Gi
+
+Swap:
+NAME          TYPE SIZE   USED PRIO
+/swap.img     file 3.6G 264.4M   -2
+/swap_cie2026 file  16G   776K   -3
+
+XSTop SHA256:
+a17f5b5d8aa6722dca04e3f8b1d93d9e68c503389cdcb6afb02af971a4f6e6fd  build/rtl/XSTop.sv

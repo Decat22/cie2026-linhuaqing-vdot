@@ -1,0 +1,5 @@
+# Building cie2026-hello [riscv64-xs] with AM_HOME {/home/chenjunxi/xs-env/nexus-am}
++ CC hello.c
+make: riscv64-unknown-linux-gnu-gcc: 没有那个文件或目录
+make: *** [/home/chenjunxi/xs-env/nexus-am/Makefile.compile:29：/home/chenjunxi/cie2026_workspace/phase1/hello/build/riscv64-xs//hello.o] 错误 127
+HELLO_BUILD_EXIT=2

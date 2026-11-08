@@ -1,0 +1,10 @@
+mkdir -p build/rtl
+time -avp -o ./build/time.log mill -i -Djvm-xmx=10g -Djvm-xss=256m xiangshan.runMain top.TopMain   \
+	--target-dir build/rtl --config KunminghuV2Config --issue E.b --firtool-opt "--repl-seq-mem --repl-seq-mem-file=XSTop.sv.conf"		\
+	--num-cores 1 --dump-fir --target systemverilog --split-verilog --firtool-opt "-O=release --disable-annotation-unknown --lowering-options=explicitBitcast,disallowLocalVariables,disallowPortDeclSharing,locationInfoStyle=none"  --fpga-platform --disable-all --remove-assert --reset-gen --firtool-opt --ignore-read-enable-mem
+Downloading mill 0.12.3 from https://repo1.maven.org/maven2/com/lihaoyi/mill-dist/0.12.3/mill-dist-0.12.3.jar ...
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0 62.4M    0 19139    0     0  37025      0  0:29:27 --:--:--  0:29:27 37019 16 62.4M   16 10.0M    0     0  6576k      0  0:00:09  0:00:01  0:00:08 6573k 51 62.4M   51 32.1M    0     0  12.6M      0  0:00:04  0:00:02  0:00:02 12.6M 79 62.4M   79 49.8M    0     0  14.1M      0  0:00:04  0:00:03  0:00:01 14.1M 98 62.4M   98 61.4M    0     0  13.3M      0  0:00:04  0:00:04 --:--:-- 13.3M100 62.4M  100 62.4M    0     0  13.3M      0  0:00:04  0:00:04 --:--:-- 14.9M
+/home/chenjunxi/.cache/mill/download/0.12.3: 16: exec: java: not found
+make: *** [Makefile:204：build/rtl/XSTop.sv] 错误 127

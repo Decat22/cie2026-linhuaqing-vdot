@@ -1,0 +1,17 @@
+===== CIE2026 KunminghuV2 Baseline EMU Success =====
+2026年 09月 04日 星期五 20:57:46 CST
+
+XiangShan commit:
+16ae9ddcda54fc9a2fddffad73174cf793ac7814
+
+Git status:
+
+EMU:
+-rwxrwxr-x 1 chenjunxi chenjunxi 115M  9月  4 20:52 build/emu
+build/emu: ELF 64-bit LSB pie executable, x86-64, version 1 (SYSV), dynamically linked, interpreter /lib64/ld-linux-x86-64.so.2, BuildID[sha1]=cf5a98c70d8897cc6f508b788cdd43f72b0d93d0, for GNU/Linux 3.2.0, not stripped
+
+EMU SHA256:
+f8705e45fe3fd9874532cb322c3096def00898baf59ece92e78d9afbce292fdc  build/emu
+
+Build total:
+5.2G	build

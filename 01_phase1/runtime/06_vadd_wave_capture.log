@@ -1,0 +1,16 @@
+emu compiled at Sep  4 2026, 21:49:49
+Using simulated 32768B flash
+Using simulated 8386560MB RAM
+The image is /home/chenjunxi/cie2026_workspace/phase1/vadd/build/cie2026-vadd-riscv64-xs.bin
+The reference model is ./ready-to-run/riscv64-nemu-interpreter-so
+The first instruction of core 0 has commited. Difftest enabled. 
+===== CIE2026 XiangShan RVV Vector Add =====
+A = [1, 2, 3, 4]
+B = [10, 20, 30, 40]
+C = [11, 22, 33, 44]
+VECTOR_ADD_PASS
+Core 0: [32mHIT GOOD TRAP at pc = 0x80000210
+[0m[35mCore-0 instrCnt = 5,472, cycleCnt = 20,922, IPC = 0.261543
+[0m[34mSeed=0 Guest cycle spent: 20,926 (this will be different from cycleCnt if emu loads a snapshot)
+[0m[34mHost time spent: 90,474ms
+[0mWAVE_EXIT=0

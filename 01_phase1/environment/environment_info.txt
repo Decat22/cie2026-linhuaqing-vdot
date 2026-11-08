@@ -1,0 +1,56 @@
+===== CIE2026 XiangShan Environment Evidence =====
+2026年 09月 04日 星期五 18:48:57 CST
+
+hello xiangshan, I am 林淮青, IP address: 192.168.74.128
+
+===== OS =====
+PRETTY_NAME="Ubuntu 24.04.4 LTS"
+NAME="Ubuntu"
+VERSION_ID="24.04"
+VERSION="24.04.4 LTS (Noble Numbat)"
+VERSION_CODENAME=noble
+ID=ubuntu
+ID_LIKE=debian
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+UBUNTU_CODENAME=noble
+LOGO=ubuntu-logo
+
+===== CPU =====
+8
+
+===== MEMORY =====
+               total        used        free      shared  buff/cache   available
+内存：          15Gi       1.9Gi       5.2Gi        67Mi       8.9Gi        13Gi
+交换：         3.6Gi          0B       3.6Gi
+
+===== DISK =====
+文件系统        大小  已用  可用 已用% 挂载点
+/dev/sda2       118G   17G   97G   15% /
+
+===== XIANGSHAN COMMIT =====
+16ae9ddcda54fc9a2fddffad73174cf793ac7814
+
+===== NEMU COMMIT =====
+53bcb5686f8fd05248ae98546b7dc04bdca1bbb0
+
+===== NEXUS-AM COMMIT =====
+086a238062fdfb3281b745a537b361983d0154b5
+
+===== VERILATOR =====
+Verilator 5.048 2026-04-26 rev v5.048
+
+===== MILL =====
+Mill Build Tool version 1.1.8
+java.version: 21.0.10
+java.vendor: Azul Systems, Inc.
+java.home: /home/chenjunxi/.cache/coursier/arc/https/cdn.azul.com/zulu/bin/zulu21.48.15-ca-jdk21.0.10-linux_x64.tar.gz/zulu21.48.15-ca-jdk21.0.10-linux_x64
+file.encoding: UTF-8
+os.name: Linux
+os.version: 6.17.0-23-generic
+os.arch: amd64
+
+===== RISCV GCC =====
+riscv64-linux-gnu-gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0

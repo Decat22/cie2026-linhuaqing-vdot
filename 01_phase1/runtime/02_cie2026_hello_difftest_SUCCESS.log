@@ -1,0 +1,12 @@
+emu compiled at Sep  4 2026, 20:19:24
+Using simulated 32768B flash
+Using simulated 8386560MB RAM
+The image is /home/chenjunxi/cie2026_workspace/phase1/hello/build/cie2026-hello-riscv64-xs.bin
+The reference model is ./ready-to-run/riscv64-nemu-interpreter-so
+The first instruction of core 0 has commited. Difftest enabled. 
+hello xiangshan, I am 林淮青, IP address: 192.168.74.128
+Core 0: [32mHIT GOOD TRAP at pc = 0x8000014c
+[0m[35mCore-0 instrCnt = 1,506, cycleCnt = 12,322, IPC = 0.122220
+[0m[34mSeed=0 Guest cycle spent: 12,326 (this will be different from cycleCnt if emu loads a snapshot)
+[0m[34mHost time spent: 40,170ms
+[0mHELLO_RUN_EXIT=0
